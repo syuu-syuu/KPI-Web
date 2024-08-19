@@ -5,11 +5,13 @@ from django.db import models
 class Site(models.Model):
     uid = models.AutoField(primary_key=True)
     site_name = models.CharField(max_length=200)
-    longitude = models.DecimalField(max_digits=9, decimal_places=6)
-    latitude = models.DecimalField(max_digits=9, decimal_places=6)
+    longitude = models.DecimalField(max_digits=10, decimal_places=7)
+    latitude = models.DecimalField(max_digits=10, decimal_places=7)
     address = models.CharField(max_length=255)
-    contract_start_month = models.DateField()
-    contract_end_month = models.DateField()
+
+    MONTH_CHOICES = [(i, i) for i in range(1, 13)]
+    contract_start_month = models.PositiveSmallIntegerField(choices=MONTH_CHOICES)
+    contract_end_month = models.PositiveSmallIntegerField(choices=MONTH_CHOICES)
 
     def __str__(self):
         return self.site_name
@@ -18,7 +20,7 @@ class Site(models.Model):
 class SiteMonthlyData(models.Model):
     site = models.ForeignKey(Site, on_delete=models.CASCADE)
     timestamp = models.DateTimeField()
-    poa_irradiance = models.DecimalField(max_digits=10, decimal_places=2)
+    POA_Irradiance = models.DecimalField(max_digits=10, decimal_places=2)
 
     def __str__(self):
         return f"{self.site.site_name} - {self.timestamp}"
