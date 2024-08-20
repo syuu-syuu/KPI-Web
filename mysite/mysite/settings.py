@@ -32,6 +32,7 @@ ALLOWED_HOSTS = []
 
 INSTALLED_APPS = [
     "solar.apps.SolarConfig",
+    "csv_importer",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
