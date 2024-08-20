@@ -1,7 +1,7 @@
 'use client';
 import Link from 'next/link';
-import {NavLinks} from '@/app/ui/dashboard/nav-links';
-import CSSLogo from '@/app/ui/css-logo';
+import {NavLinks} from '@/app/ui/nav-links';
+import CSSLogo from './css-logo';
 import { PowerIcon } from '@heroicons/react/24/outline';
 import { useState } from 'react';
 
