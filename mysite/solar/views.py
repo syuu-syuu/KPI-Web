@@ -1,43 +1,44 @@
-from django.shortcuts import render
-
 # Create your views here.
-from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
-import pandas as pd
-import os
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework.parsers import MultiPartParser, FormParser
+from rest_framework import status
+from rest_framework import viewsets
+from .services.file_processor.process_files import read_uploaded_files
+from .models import Site
+from .serializer import SiteSerializer
 
 
-@csrf_exempt
-def upload_file(request):
-    if request.method == "POST":
+class SiteViewSet(viewsets.ModelViewSet):
+    queryset = Site.objects.all()
+    serializer_class = SiteSerializer
+
+
+class UploadFileView(APIView):
+    parser_classes = [MultiPartParser, FormParser]
+
+    def post(self, request, *args, **kwargs):
         print("Received a request!")
         print("Request method:", request.method)
         print("Request files:", request.FILES)
 
-        uploaded_file = request.FILES.get("files")
-        if uploaded_file:
-            file_extension = os.path.splitext(uploaded_file.name)[1]
-            if file_extension.lower() in [".csv", ".xlsx"]:
-                # Read file
-                if file_extension.lower() == ".csv":
-                    df = pd.read_csv(uploaded_file)
-                elif file_extension.lower() == ".xlsx":
-                    df = pd.read_excel(uploaded_file)
+        uploaded_files = request.FILES.getlist("files")
 
-                # Process data here
-
-                return JsonResponse(
-                    {"status": "success", "message": "File uploaded and processed"}
-                )
-            else:
-                return JsonResponse(
-                    {"status": "error", "message": "Unsupported file format"},
-                    status=400,
-                )
-        else:
-            return JsonResponse(
-                {"status": "error", "message": "No file uploaded"}, status=400
+        if not uploaded_files:
+            return Response(
+                {"status": "error", "message": "No files uploaded"},
+                status=status.HTTP_400_BAD_REQUEST,
             )
-    return JsonResponse(
-        {"status": "error", "message": "Invalid request method"}, status=405
-    )
+
+        try:
+            read_uploaded_files(uploaded_files)
+            return Response(
+                {"status": "success", "message": "File uploaded and processed"},
+                status=status.HTTP_200_OK,
+            )
+        except ValueError as e:
+            print(f"Error occurred: {str(e)}")
+            return Response(
+                {"status": "error", "message": str(e)},
+                status=status.HTTP_400_BAD_REQUEST,
+            )

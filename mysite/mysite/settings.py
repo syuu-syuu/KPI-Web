@@ -31,6 +31,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    "rest_framework",
     "solar.apps.SolarConfig",
     "csv_importer",
     "django.contrib.admin",
