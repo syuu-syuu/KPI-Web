@@ -3,7 +3,7 @@ from django.db import models
 
 # Create your models here.
 class Site(models.Model):
-    uid = models.AutoField(primary_key=True)
+    site_id = models.AutoField(primary_key=True)
     site_name = models.CharField(max_length=200)
     longitude = models.DecimalField(max_digits=10, decimal_places=7)
     latitude = models.DecimalField(max_digits=10, decimal_places=7)
