@@ -6,6 +6,6 @@ router = DefaultRouter()
 router.register(r"sites", views.SiteViewSet)
 
 urlpatterns = [
-    path("upload_file", views.UploadFileView.as_view(), name="upload_file"),
+    path("upload_file/", views.UploadFileView.as_view()),
     path("", include(router.urls)),
 ]
