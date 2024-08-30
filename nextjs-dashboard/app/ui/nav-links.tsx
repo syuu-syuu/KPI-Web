@@ -1,122 +1,51 @@
 'use client';
-import {
-  HomeIcon,
-  DocumentDuplicateIcon,
-  ServerIcon,
-  CubeTransparentIcon,
-  MapIcon
-} from '@heroicons/react/24/outline';
-
+import { MapIcon } from '@heroicons/react/24/outline';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import clsx from 'clsx';
-// Map of links to display in the side navigation.
-// Depending on the size of the application, this would be stored in a database.
-interface Site {
-  name: string;
-  href: string;
-}
-
-interface NavLink {
-  name: string;
-  href: string;
-  icon: any;
-  children?: Site[];
-}
-
-interface NavLinksProps {
-  onToggleSites: () => void; 
-  sitesExpanded: boolean;
-}
-
-
-const siteNames: string[] = [
-  "Chilouquin Solar Farm",
-  "Cotten Farm",
-  "County Home Solar Center, LLC",
-  "Dairy Solar",
-  "Davis Lane Solar, LLC",
-  "Faison",
-  "Four Oaks",
-  "Freemont Solar Center",
-  "Gauss Solar",
-  "Jersey Solar",
-  "Lakeview Solar",
-  "Mariposa Solar Center, LLC",
-  "Merrill Solar",
-  "Monroe Moore Farm",
-  "NC Solar I",
-  "NC Solar II",
-  "Nitro",
-  "Princeton",
-  "Red Oak Solar Farm",
-  "S. Robeson Solar",
-  "Sarah",
-  "Schell Solar Farm",
-  "Sedberry",
-  "Siler 421 Farm",
-  "Sonne Two, LLC",
-  "Tiburon",
-  "Tumbleweed Solar Farm",
-  "Turkey Hill Solar"
-];
-
-const sitesData: Site[] = siteNames.map(name => ({
-  name,
-  href: `/dashboard/site/${name.toLowerCase().replace(/ /g, '-').replace(/,/g, '').replace(/\./g, '').replace(/&/g, 'and')}`
-}));
-
-
-const links: NavLink[] = [
-  { name: 'Home', href: '/dashboard', icon: HomeIcon },
-  {
-    name: 'Docs',
-    href: '/dashboard/docs',
-    icon: DocumentDuplicateIcon,
-  },
-  { name: 'Sites', href: '/dashboard/sites', icon: CubeTransparentIcon, children: sitesData},
-  { name: 'Database', href: 'dashboard/database', icon: ServerIcon}
-];
+import { NavLinksProps } from '@/app/lib/definitions';
 
 
 
-export const NavLinks: React.FC<NavLinksProps> = ({ onToggleSites, sitesExpanded }) => {
+const NavLinks: React.FC<NavLinksProps> = ({ menuItems, expandedItems, toggleMenuItem  }) => {
   const pathname = usePathname();
   return (
     <>
-      {links.map((link) => {
-        const LinkIcon = link.icon;
-        const isSites = link.name === 'Sites';
+      {menuItems.map((item) => {
+        const LinkIcon = item.icon;
+        const isExpanded = expandedItems[item.name] || false;
+        
         return (
-          <div key={link.name}>
+          <div key={item.name}>
             <Link
-              href={link.href}
-              onClick={(e) => {
-                if (isSites) {
-                  e.preventDefault(); 
-                  onToggleSites();   
+              href={item.href}
+               onClick={(e) => {
+                if (item.children) {
+                  e.preventDefault();
+                  toggleMenuItem(item.name);
                 }
               }}
               className={clsx(
                 'flex h-[48px] grow items-center justify-center gap-2 rounded-md bg-gray-50 p-3 text-sm font-medium hover:bg-sky-100 hover:text-blue-600 md:flex-none md:justify-start md:p-2 md:px-3',
                 {
-                  'bg-sky-100 text-blue-600': pathname === link.href,
+                  'bg-sky-100 text-blue-600': pathname === item.href,
                 },
               )}
             >
               <LinkIcon className="w-6" />
-              <p className="hidden md:block">{link.name}</p>
+              <p className="hidden md:block">{item.name}</p>
             </Link>
-            {isSites && sitesExpanded && link.children && (
+            {isExpanded && item.children && (
               <div className="ml-10 space-y-2">
-                {link.children.map((child) => (
-                  <Link key={child.name}
+                {item.children.map((child) => (
+                  <Link
+                    key={child.site_id}
                     href={child.href}
                     className={clsx(
                       'flex h-[48px] grow items-center justify-center mt-2 gap-2 rounded-md bg-gray-50 p-3 text-sm font-medium hover:bg-sky-100 hover:text-blue-600 md:flex-none md:justify-start md:p-2 md:px-3',
                       {
                         'bg-sky-100 text-blue-600': pathname === child.href,
-                      },
+                      }
                     )}
                   >
                   <MapIcon className="w-6" /> 
@@ -131,3 +60,6 @@ export const NavLinks: React.FC<NavLinksProps> = ({ onToggleSites, sitesExpanded
     </>
   );
 }
+
+
+export {NavLinks};
