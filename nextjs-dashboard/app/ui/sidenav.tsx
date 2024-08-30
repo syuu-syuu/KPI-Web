@@ -15,6 +15,7 @@ import {
 
 import { SiteMenuItem, SiteDetail, NavLink } from '@/lib/definitions';
 import { fetchSites } from '@/lib/api';
+import { useSiteContext } from '@/contexts/SiteContext';
 import { NavLinks } from '@/components/NavLinks';
 
 const loadSites = async (): Promise<SiteMenuItem[]> => {
@@ -23,10 +24,9 @@ const loadSites = async (): Promise<SiteMenuItem[]> => {
     const siteMenuItems = data.map((site: SiteDetail) => ({
       site_id: site.site_id,
       name: site.site_name, // Use site_name as the name for the menu item
-      href: `/site/${site.site_name.toLowerCase().replace(/\s+/g, '-')}`+
-            `?site_id=${site.site_id}`, // Create URL with site_name
+      href: `/site/${site.site_name.toLowerCase().replace(/\s+/g, '-')}` // Create URL with site_name
     }));
-    console.log('Generated siteMenuItems:', siteMenuItems); 
+    console.log('Generated site menu items:', siteMenuItems); 
     return siteMenuItems;
   } catch (error) {
     console.error('Error loading sites:', error);

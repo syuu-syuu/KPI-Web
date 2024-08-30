@@ -11,26 +11,10 @@ import {
   CubeTransparentIcon,
 } from '@heroicons/react/24/outline';
 
-
-import { SiteMenuItem, SiteDetail, NavLink } from '@/lib/definitions';
-import { fetchSites } from '@/lib/api';
+import { SiteMenuItem, NavLink } from '@/lib/definitions';
 import { NavLinks } from '@/components/NavLinks';
+import { useSiteContext } from '@/contexts/SiteContext';
 
-const loadSites = async (): Promise<SiteMenuItem[]> => {
-  try {
-    const data = await fetchSites();
-    const siteMenuItems = data.map((site: SiteDetail) => ({
-      site_id: site.site_id,
-      name: site.site_name, 
-      href: `/site/${site.site_name}`, // Create URL with site_name
-    }));
-
-    return siteMenuItems;
-  } catch (error) {
-    console.error('Error loading sites:', error);
-    throw error; // Re-throw the error so it can be handled elsewhere if needed
-  }
-};
 
 const createMenuItems = (siteMenuItems: SiteMenuItem[]): NavLink[] => {
   return [
@@ -42,25 +26,15 @@ const createMenuItems = (siteMenuItems: SiteMenuItem[]): NavLink[] => {
 };
 
 
-
 const SideNav = () => {
+  const { siteMenuItems } = useSiteContext(); // Use the siteMenuItems from the context
   const [expandedItems, setExpandedItems] = useState<{ [key: string]: boolean }>({});
   const [menuItems, setMenuItems] = useState<NavLink[]>([]);
 
   useEffect(() => {
-    const initializeMenu = async () => {
-        try {
-        const siteMenuItems = await loadSites();
         const initialMenuItems = createMenuItems(siteMenuItems);
         setMenuItems(initialMenuItems);
-        } catch (error) {
-        console.error('Error initializing menu:', error);
-        }
-    };
-
-    initializeMenu();
-
-  }, []);
+  }, [siteMenuItems]);
 
   const toggleMenuItem = (itemName: string) => {
     setExpandedItems(prev => ({

@@ -30,3 +30,5 @@ export const fetchSiteDetails = async (siteId: string): Promise<SiteDetail> => {
     throw error;
   }
 }
+
+
