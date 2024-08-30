@@ -1,12 +1,16 @@
-import React, { createContext, useContext, useState } from 'react';
-import { SiteMenuItem } from '@/lib/definitions';
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import { SiteMenuItem, SiteDetail } from '@/lib/definitions';
+import { fetchSites } from '@/lib/api';
 
 interface SiteContextProps {
   siteMenuItems: SiteMenuItem[];
   setSiteMenuItems: React.Dispatch<React.SetStateAction<SiteMenuItem[]>>;
 }
 
-const SiteContext = createContext<SiteContextProps | undefined>(undefined);
+const SiteContext = createContext<SiteContextProps>({
+  siteMenuItems: [],
+  setSiteMenuItems: () => {},
+});
 
 export const useSiteContext = () => {
   const context = useContext(SiteContext);
@@ -16,14 +20,22 @@ export const useSiteContext = () => {
   return context;
 };
 
-export const SiteProvider = ({
-  children,
-  siteMenuItems: initialSiteMenuItems,
-}: {
-  children: React.ReactNode;
-  siteMenuItems: SiteMenuItem[];
-}) => {
-  const [siteMenuItems, setSiteMenuItems] = useState<SiteMenuItem[]>(initialSiteMenuItems);
+export const SiteProvider = ({children,}: {children: React.ReactNode;}) => {
+  const [siteMenuItems, setSiteMenuItems] = useState<SiteMenuItem[]>([]);
+  useEffect(() => {
+    const loadSites = async () => {
+      const data = await fetchSites(); // Fetch the data client-side
+      const siteMenuItems = data.map((site: SiteDetail) => ({
+        site_id: site.site_id,
+        name: site.site_name,
+        href: `/site/${site.site_name.toLowerCase().replace(/\s+/g, '-')}`, // Create URL with site_name
+      }));
+      console.log('Generated siteMenuItems:', siteMenuItems);
+      setSiteMenuItems(siteMenuItems);
+    };
+
+    loadSites();
+  }, []);
 
   return (
     <SiteContext.Provider value={{ siteMenuItems, setSiteMenuItems }}>

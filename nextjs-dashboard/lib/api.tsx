@@ -17,7 +17,7 @@ export const fetchSites = async (): Promise<SiteDetail[]> => {
 
 export const fetchSiteDetails = async (siteId: string): Promise<SiteDetail> => {
   try {
-    const response = await fetch(`/api/sites/${siteId}`);
+    const response = await fetch('/api/sites/${siteId}');
     if (!response.ok) {
       throw new Error('Network response was not ok');
     }
