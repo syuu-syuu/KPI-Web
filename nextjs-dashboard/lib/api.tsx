@@ -2,7 +2,7 @@ import { SiteDetail } from '@/lib/definitions';
 
 export const fetchSites = async (): Promise<SiteDetail[]> => {
   try {
-    const response = await fetch('/api/sites/'); 
+    const response = await fetch('/api/sites'); 
     if (!response.ok) {
         throw new Error('Network response was not ok');
     }
@@ -17,7 +17,7 @@ export const fetchSites = async (): Promise<SiteDetail[]> => {
 
 export const fetchSiteDetails = async (site_id: string): Promise<SiteDetail> => {
   try {
-    const response = await fetch(`/api/sites/${site_id}/`);
+    const response = await fetch(`/api/sites/${site_id}`);
     if (!response.ok) {
       throw new Error('Network response was not ok');
     }

@@ -20,7 +20,7 @@ const createMenuItems = (siteMenuItems: SiteMenuItem[]): NavLink[] => {
   return [
     { name: 'Home', href: '/', icon: HomeIcon },
     { name: 'Docs', href: '/docs', icon: DocumentDuplicateIcon },
-    { name: 'Sites', href: '/site', icon: CubeTransparentIcon, children: siteMenuItems },
+    { name: 'Sites', href: '/sites', icon: CubeTransparentIcon, children: siteMenuItems },
     { name: 'Database', href: '/database', icon: ServerIcon },
   ];
 };

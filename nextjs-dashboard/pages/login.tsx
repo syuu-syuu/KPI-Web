@@ -37,4 +37,6 @@ const LoginPage = () => {
   );
 }
 
+LoginPage.noLayout = true;
+
 export default LoginPage;
