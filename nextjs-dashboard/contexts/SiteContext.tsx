@@ -28,7 +28,7 @@ export const SiteProvider = ({children,}: {children: React.ReactNode;}) => {
       const siteMenuItems = data.map((site: SiteDetail) => ({
         site_id: site.site_id,
         name: site.site_name,
-        href: `/site/${site.site_name.toLowerCase().replace(/\s+/g, '-')}/${site.site_id}`, // Create URL with site_name and site_id
+        href: `/sites/${site.site_id}`, // Create URL with site_id
       })).sort((a, b) => a.name.localeCompare(b.name));
       console.log('Generated siteMenuItems:', siteMenuItems);
       setSiteMenuItems(siteMenuItems);
