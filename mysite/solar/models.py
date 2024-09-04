@@ -76,9 +76,10 @@ class SiteMonthlyData(models.Model):
     site = models.ForeignKey(Site, on_delete=models.CASCADE)
     timestamp = models.DateTimeField()
     POA_Irradiance = models.DecimalField(max_digits=10, decimal_places=2)
+    is_day = models.BooleanField()
 
     def __str__(self):
-        return f"{self.site.site_name} - {self.timestamp}"
+        return f"{self.site.site_name} - {self.timestamp} - {'Day' if self.is_day else 'Night'}"
 
 
 class InverterData(models.Model):
@@ -90,3 +91,14 @@ class InverterData(models.Model):
 
     def __str__(self):
         return f"{self.inverter_name} - {self.value}"
+
+
+class InverterNameMapping(models.Model):
+    site = models.ForeignKey(
+        Site, related_name="inverter_name_mappings", on_delete=models.CASCADE
+    )
+    original_name = models.CharField(max_length=100)
+    formatted_name = models.CharField(max_length=100)
+
+    def __str__(self):
+        return f"{self.site.site_name}: {self.formatted_name} -> {self.original_name}"
