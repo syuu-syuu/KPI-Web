@@ -1,4 +1,5 @@
 import numpy as np
+from solar.services.data_operations.save_to_db import save_inverter_name_mappings
 
 
 def find_keywords(column, keywords_list):
@@ -31,10 +32,8 @@ def column_basic(df):
     return df
 
 
-name_mapping = {}
-
-
-def column_inverter(df):
+def column_inverter(df, site_id):
+    inverter_name_mapping = {}
     known_columns = {
         "Timestamp",
         "POA Irradiance",
@@ -47,8 +46,10 @@ def column_inverter(df):
             new_name = "Inverter_" + str(inverter_index)
             df.rename(columns={col: new_name}, inplace=True)
             # Used for renaming cols to their original names in the end of the processing
-            name_mapping[new_name] = col
+            inverter_name_mapping[new_name] = col
             inverter_index += 1
+
+    save_inverter_name_mappings(site_id, inverter_name_mapping)
 
     return df
 
@@ -65,5 +66,9 @@ def column_reorder(df):
     return df
 
 
-def rename(df):
-    return df.pipe(column_basic).pipe(column_inverter).pipe(column_reorder)
+def rename(df, site_id):
+    return (
+        df.pipe(column_basic)
+        .pipe(column_inverter, site_id=site_id)
+        .pipe(column_reorder)
+    )
