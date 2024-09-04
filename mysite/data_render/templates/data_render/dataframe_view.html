@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>DataFrame View</title>
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+    />
+  </head>
+  <body>
+    <div class="container">
+      <h1>Data Uploaded & Processed</h1>
+      <form action="{% url 'render_dataframe' %}" method="get">
+        <button type="submit">Render Data</button>
+      </form>
+      <div>{{ dataframe_html|safe }}</div>
+    </div>
+  </body>
+</html>
