@@ -18,9 +18,9 @@ class UploadFileView(APIView):
     parser_classes = [MultiPartParser, FormParser]
 
     def post(self, request, *args, **kwargs):
-        print("Received a request!")
-        print("Request method:", request.method)
-        print("Request files:", request.FILES)
+        print("Received a request!", request)
+        print("Request site:", request.data.get("site_id"))
+        print("Request files:", request.FILES.getlist("files"))
 
         uploaded_files = request.FILES.getlist("files")
 
@@ -31,11 +31,23 @@ class UploadFileView(APIView):
             )
 
         try:
-            read_uploaded_files(uploaded_files)
+            site_id = request.data.get("site_id")
+            request.session["site_id"] = site_id
+
             return Response(
                 {"status": "success", "message": "File uploaded and processed"},
                 status=status.HTTP_200_OK,
             )
+
+            # dfs = read_uploaded_files(uploaded_files)
+            # if not dfs:
+            #     print("No DataFrames were created.")
+            # else:
+            #     print(f"Number of DataFrames: {len(dfs)}")
+            #     print(f"Type of first DataFrame: {type(dfs[0])}")
+
+            # return render_dataframe(request, dfs=dfs)
+
         except ValueError as e:
             print(f"Error occurred: {str(e)}")
             return Response(
