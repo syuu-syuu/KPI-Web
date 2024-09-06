@@ -75,8 +75,13 @@ class Site(models.Model):
 class SiteMonthlyData(models.Model):
     site = models.ForeignKey(Site, on_delete=models.CASCADE)
     timestamp = models.DateTimeField()
-    POA_Irradiance = models.DecimalField(max_digits=10, decimal_places=2)
-    is_day = models.BooleanField()
+    POA_Irradiance = models.DecimalField(max_digits=20, decimal_places=6)
+    meter_power = models.DecimalField(
+        max_digits=20, decimal_places=6, null=True, blank=True
+    )
+    is_day = models.BooleanField(
+        null=True, blank=True
+    )  # Allows storing NULL for 'Unknown'
 
     def __str__(self):
         return f"{self.site.site_name} - {self.timestamp} - {'Day' if self.is_day else 'Night'}"
@@ -86,8 +91,8 @@ class InverterData(models.Model):
     monthly_data = models.ForeignKey(
         SiteMonthlyData, related_name="inverters", on_delete=models.CASCADE
     )
-    inverter_name = models.CharField(max_length=50)
-    value = models.DecimalField(max_digits=10, decimal_places=2)
+    inverter_name = models.CharField(max_length=100)
+    value = models.DecimalField(max_digits=20, decimal_places=6, null=True, blank=True)
 
     def __str__(self):
         return f"{self.inverter_name} - {self.value}"

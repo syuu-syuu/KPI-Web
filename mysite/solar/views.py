@@ -15,9 +15,7 @@ class SiteViewSet(viewsets.ModelViewSet):
 
 
 class UploadFileView(APIView):
-    parser_classes = [MultiPartParser, FormParser]
-
-    def post(self, request, *args, **kwargs):
+    def post(self, request):
         print("Received a request!", request)
         print("Request site:", request.data.get("site_id"))
         print("Request files:", request.FILES.getlist("files"))

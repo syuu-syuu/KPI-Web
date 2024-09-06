@@ -27,28 +27,40 @@ def save_processed_data_to_db(df, site_id):
         print(f"Site with ID {site_id} does not exist.")
         return
 
-    # Define inverter columns based on your DataFrame structure
-    inverter_columns = [col for col in df.columns if col.startswith("Inverter_")]
-
     # Iterate over DataFrame rows
     for _, row in df.iterrows():
-        # Parse and convert timestamp if necessary
-        timestamp = pd.to_datetime(row["Timestamp"])
+        timestamp = row["Timestamp"]
 
-        # Convert POA Irradiance to Decimal
-        poa_irradiance = Decimal(str(row["POA_Irradiance"])).quantize(Decimal("0.01"))
+        # Convert POA Irradiance & Meter Power to Decimal
+        poa_irradiance = Decimal(str(row["POA Irradiance"])).quantize(
+            Decimal("0.000001")
+        )
+        meter_power = (
+            None
+            if pd.isna(row.get("Meter Power"))
+            else Decimal(str(row["Meter Power"])).quantize(Decimal("0.000001"))
+        )
 
         # Convert 'Day/Night' to boolean
-        is_day = True if row["Day_Night"].lower() == "day" else False
+        is_day = {"day": True, "night": False}.get(row["Day/Night"].lower(), None)
 
         # Create and save SiteMonthlyData instance
         monthly_data = SiteMonthlyData.objects.create(
-            site=site, timestamp=timestamp, POA_Irradiance=poa_irradiance, is_day=is_day
+            site=site,
+            timestamp=timestamp,
+            POA_Irradiance=poa_irradiance,
+            meter_power=meter_power,
+            is_day=is_day,
         )
 
         # Create and save InverterData instances
+        inverter_columns = [col for col in df.columns if col.startswith("Inverter_")]
         for inverter_col in inverter_columns:
-            inverter_value = Decimal(str(row[inverter_col])).quantize(Decimal("0.01"))
+            inverter_value = (
+                None
+                if pd.isna(row.get(inverter_col))
+                else Decimal(str(row[inverter_col])).quantize(Decimal("0.000001"))
+            )
             InverterData.objects.create(
                 monthly_data=monthly_data,
                 inverter_name=inverter_col,
