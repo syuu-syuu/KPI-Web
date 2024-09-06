@@ -16,6 +16,7 @@ import 'filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css'
 import { FilePondFile } from 'filepond'
 import { fetchSiteDetails } from '@/lib/api'
 import { SiteDetail } from '@/lib/definitions'
+import SiteDetailsForm from '@/components/SiteDetailsForm'
 // import { MonthPicker, MonthInput } from 'react-lite-month-picker';
 
 // Register the plugins
@@ -30,8 +31,6 @@ const SitePage = () => {
     month: new Date().getMonth() + 1,
     year: new Date().getFullYear(),
   });
-  // const [isPickerOpen, setIsPickerOpen] = useState(false);
-  // const [isFileUploadEnabled, setIsFileUploadEnabled] = useState(false);
   console.log("router.isReady:", router.isReady);
   console.log(site_id); 
 
@@ -49,52 +48,13 @@ const SitePage = () => {
   
 }, [site_id]);
 
-//  useEffect(() => {
-//     if (selectedMonthData.month && selectedMonthData.year) {
-//       setIsFileUploadEnabled(true);
-//     } else {
-//       setIsFileUploadEnabled(false);
-//     }
-//   }, [selectedMonthData]);
-
-  const formFields = [
-    { label: 'Site Name', value: SiteDetails?.site_name },
-    { label: 'Address', value: SiteDetails?.address },
-    { label: 'City', value: SiteDetails?.city },
-    { label: 'State', value: SiteDetails?.state },
-    { label: 'Latitude', value: SiteDetails?.latitude },
-    { label: 'Longitude', value: SiteDetails?.longitude },
-    { label: 'Contract Start Month', value: SiteDetails?.contract_start_month },
-    { label: 'Contract End Month', value: SiteDetails?.contract_end_month },
-  ];
 
   return (
     <>
       <h1> {SiteDetails?.site_name} </h1> 
-      <form>
-        {formFields.map((field, index) => (
-          <div key={index}>
-            <label>{field.label}:</label>
-            <input type="text" value={field.value} readOnly />
-          </div>
-        ))}
-      </form>
-         <div className="flex items-center space-x-4 mt-6">
-        {/* <div>
-          <MonthInput
-            selected={selectedMonthData}
-            setShowMonthPicker={setIsPickerOpen}
-            showMonthPicker={isPickerOpen}
-            className="border rounded py-2 px-3 text-gray-700"
-          />
-          {isPickerOpen ? (
-            <MonthPicker
-              setIsOpen={setIsPickerOpen}
-              selected={selectedMonthData}
-              onChange={setSelectedMonthData}
-            />
-          ) : null}
-        </div> */}
+      <SiteDetailsForm siteDetails={SiteDetails} />
+     
+      <div className="flex items-center space-x-4 mt-6">
 
         <div className="flex-1">
           <FilePond
@@ -123,7 +83,6 @@ const SitePage = () => {
             name="files" /* sets the file input name, it's filepond by default */
             labelIdle='Drag & Drop your files or <span class="filepond--label-action">Browse</span>'
             instantUpload={false}
-            // disabled={!isFileUploadEnabled}
             className="w-full"
           />
         </div>
