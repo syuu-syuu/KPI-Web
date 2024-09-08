@@ -107,3 +107,17 @@ class InverterNameMapping(models.Model):
 
     def __str__(self):
         return f"{self.site.site_name}: {self.formatted_name} -> {self.original_name}"
+
+
+class ExclusiveOutage(models.Model):
+    site = models.ForeignKey(Site, on_delete=models.CASCADE)
+    start_time = models.DateTimeField()
+    end_time = models.DateTimeField()
+    impacted_inverters = models.ManyToManyField(InverterData, related_name="outages")
+
+    def __str__(self):
+        return f"{self.site.site_name} - {self.start_time} to {self.end_time}"
+
+    @property
+    def duration(self):
+        return self.end_time - self.start_time
