@@ -7,13 +7,13 @@ export type SiteMenuItem = {
 export type SiteDetail = {
   site_id: number;
   site_name: string;
-  longitude: number;
-  latitude: number;
+  longitude: number | string;
+  latitude: number | string;
   address: string;
   city: string;
   state: string;
-  contract_start_month: number;
-  contract_end_month: number;
+  contract_start_month: number | string;
+  contract_end_month: number | string;
 };
 
 
@@ -29,3 +29,4 @@ export interface NavLinksProps {
   expandedItems: { [key: string]: boolean }; // A map of expanded state for each menu item by name
   toggleMenuItem: (itemName: string) => void; // Function to toggle the expanded state of a menu item
 }
+
