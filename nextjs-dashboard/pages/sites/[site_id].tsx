@@ -16,9 +16,14 @@ import 'filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css'
 import { FilePondFile } from 'filepond'
 import { fetchSiteDetails } from '@/lib/api'
 import { SiteDetail } from '@/lib/definitions'
-import SiteDetailsForm from '@/components/SiteDetailsForm'
+import SiteDetailsForm from '@/components/site-details-form'
 // import { MonthPicker, MonthInput } from 'react-lite-month-picker';
-
+import DataTable from '@/components/raw-data-table/data-table'
+// import { SiteMonthlyData, columns } from '@/components/data-table/columns'
+import { siteMonthlyDataSample } from '@/components/raw-data-table/data'
+import { ExclusiveOutageDataTable } from '@/components/exclusive-outages-table/data-table'
+import { exclusiveOutageDataSample } from '@/components/exclusive-outages-table/data'
+import {columns} from '@/components/exclusive-outages-table/columns'
 // Register the plugins
 registerPlugin(FilePondPluginImageExifOrientation, FilePondPluginImagePreview)
 
@@ -51,7 +56,7 @@ const SitePage = () => {
 
   return (
     <>
-      <h1> {SiteDetails?.site_name} </h1> 
+      <h1 className='mb-6'> {SiteDetails?.site_name} </h1> 
       <SiteDetailsForm siteDetails={SiteDetails} />
      
       <div className="flex items-center space-x-4 mt-6">
@@ -86,6 +91,12 @@ const SitePage = () => {
             className="w-full"
           />
         </div>
+      </div>
+
+      
+      <DataTable data={siteMonthlyDataSample} />
+      <div className='mt-6'>
+        <ExclusiveOutageDataTable data={exclusiveOutageDataSample} columns={columns}/>
       </div>
     </>
   );

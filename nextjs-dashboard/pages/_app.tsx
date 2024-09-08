@@ -1,6 +1,6 @@
 import { NextComponentType, NextPageContext } from 'next';
 import { AppProps } from 'next/app';
-import Layout from '@/components/Layout';
+import Layout from '@/components/layout';
 
 import '@/styles/global.css';
 
