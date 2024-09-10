@@ -54,6 +54,8 @@ const DataTable= ({data, site_id}: DataTableProps<SiteMonthlyData>) => {
   const [originalRawData, setOriginalRawData] = useState<SiteMonthlyData[]>(data)
 
   useEffect(() => { 
+    console.log("selectedMode:", selectedMode);
+    console.log("columns:", columns);
     async function loadInitialTimeRange() {
     try {
       const availableDateRange = await loadTimeRange(site_id)

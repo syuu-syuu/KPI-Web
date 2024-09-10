@@ -27,30 +27,15 @@ export const getColumns = (selectedMode: string): ColumnDef<SiteMonthlyData>[] =
         header: ({ column }) => (
           <DataTableColumnHeader column={column} title="POA Irradiance" />
         ),
-        cell: (info) => {
-          const value = info.getValue() as number;
-          return value !== undefined && value !== null ? value.toFixed(6) : "N/A"; // Use "N/A" or any placeholder for undefined values
-        },
-        // cell: (info) => {
-        //   const value = parseFloat(info.getValue() as string); // Convert string to a number
-        //   return !isNaN(value) ? value.toFixed(6) : "N/A"; // Check if it's a valid number
-        // },
-        // cell: (info) => (info.getValue() as number).toFixed(6), // 6 decimal places
+        cell: (info) => info.getValue() || "N/A",
+          
     },
     {
         accessorKey: "meter_Power",
         header: ({ column }) => (
           <DataTableColumnHeader column={column} title="Meter Power" />
         ),
-        cell: (info) => {
-          const value = info.getValue() as number;
-          return value !== undefined && value !== null ? value.toFixed(6) : "N/A"; // Use "N/A" or any placeholder for undefined values
-        },
-        // cell: (info) => {
-        //   const value = parseFloat(info.getValue() as string); // Convert string to a number
-        //   return !isNaN(value) ? value.toFixed(6) : "N/A"; // Check if it's a valid number
-        // },
-        // cell: (info) => info.getValue() !== null ? (info.getValue() as number).toFixed(6) : "N/A", // 6 decimal places or display "N/A"
+        cell: (info) => info.getValue() || "N/A",
     },
     // Dynamically create columns for each inverter
     ...inverterFormattedNamesSample.map((inverterName) => ({
@@ -60,22 +45,11 @@ export const getColumns = (selectedMode: string): ColumnDef<SiteMonthlyData>[] =
         ),
         accessorFn: (row: SiteMonthlyData) => 
         row.inverters.find((i) => i.inverter_name === inverterName)?.value,
-        cell: (info: CellContext<SiteMonthlyData, unknown>) => {
-    const value = info.getValue();
-
-    // Check if the value is a number and is not NaN before applying toFixed
-    if (typeof value === 'number' && !isNaN(value)) {
-      return value.toFixed(6); // Format the number to 6 decimal places
-    } else {
-      return "N/A"; // Return a fallback value for non-numeric data
-    }
-  },
-        // cell: (info: CellContext<SiteMonthlyData, unknown>) => 
-        //     info.getValue() !== null ? (info.getValue() as number).toFixed(6) : "N/A", 
+        cell: (info: CellContext<SiteMonthlyData, unknown>) => info.getValue() || "N/A",
     })),
   ];
 
-  if (selectedMode === 'auto-processed'|| "expected") {
+  if (selectedMode === 'auto-processed' || selectedMode === 'expected') {
     columns.unshift({
       id: "select",
       header: ({ table }) => (
@@ -107,7 +81,7 @@ export const getColumns = (selectedMode: string): ColumnDef<SiteMonthlyData>[] =
         ),
       cell: (info) => {
         // Custom logic to calculate status
-        return info.row.original.POA_Irradiance > 0 ? "Active" : "Inactive";
+        return info.row.original.is_day == "Day" ? "Active" : "Inactive";
       },
     });
   }

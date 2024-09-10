@@ -16,22 +16,6 @@ class SiteViewSet(viewsets.ModelViewSet):
     serializer_class = SiteSerializer
 
 
-def get_available_time_range(request, site_id):
-    # Get the earliest and latest timestamps for the given site
-    print(f"Getting available time range for current site ID: {site_id}")
-    earliest = SiteMonthlyData.objects.all().order_by("timestamp").first()
-    latest = SiteMonthlyData.objects.all().order_by("-timestamp").first()
-    if earliest and latest:
-        print(f"Earliest: {earliest.timestamp}, Latest: {latest.timestamp}")
-        return JsonResponse(
-            {
-                "earliest": earliest.timestamp.isoformat(),
-                "latest": latest.timestamp.isoformat(),
-            }
-        )
-    return JsonResponse({"error": "No data found for this site"}, status=404)
-
-
 class UploadFileView(APIView):
     def post(self, request):
         print("Received a request!", request)
@@ -76,7 +60,24 @@ class SiteMonthlyDataViewSet(viewsets.ViewSet):
     queryset = SiteMonthlyData.objects.all()
 
     @action(detail=False, methods=["get"])
-    def list_original(self, request):
+    def get_available_time_range(self, request):
+        site_id = request.query_params.get("site_id")
+        print(f"Getting available time range for current site ID: {site_id}")
+        site_data = SiteMonthlyData.objects.filter(site_id=site_id)
+        earliest = site_data.order_by("timestamp").first()
+        latest = site_data.order_by("-timestamp").first()
+        if earliest and latest:
+            print(f"Earliest: {earliest.timestamp}, Latest: {latest.timestamp}")
+            return JsonResponse(
+                {
+                    "earliest": earliest.timestamp.isoformat(),
+                    "latest": latest.timestamp.isoformat(),
+                }
+            )
+        return JsonResponse({"error": "No data found for this site"}, status=404)
+
+    @action(detail=False, methods=["get"])
+    def get_original_raw(self, request):
         site_id = request.query_params.get("site_id")
         start_date = request.query_params.get("start_date")
         end_date = request.query_params.get("end_date")

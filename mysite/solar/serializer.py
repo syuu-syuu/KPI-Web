@@ -1,5 +1,21 @@
 from rest_framework import serializers
 from .models import Site, SiteMonthlyData, InverterData
+from decimal import Decimal
+import re
+
+
+def format_string_value(value):
+    if value is None or value == "":
+        return "N/A"
+
+    if float(value) == 0:
+        return "0"
+
+    value_str = str(value)
+    if "." in value_str:
+        value_str = value_str.rstrip("0").rstrip(".")
+
+    return value_str
 
 
 class SiteSerializer(serializers.ModelSerializer):
@@ -15,14 +31,7 @@ class InverterDataSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         data = super().to_representation(instance)
-
-        # Convert value to float
-        if data.get("value") is not None:
-            try:
-                data["value"] = float(data["value"])
-            except ValueError:
-                data["value"] = None
-
+        data["value"] = format_string_value(data.get("value"))
         return data
 
 
@@ -36,19 +45,8 @@ class SiteMonthlyDataSerializer(serializers.ModelSerializer):
     def to_representation(self, instance):
         data = super().to_representation(instance)
 
-        # Convert POA_Irradiance to float
-        if data.get("POA_Irradiance") is not None:
-            try:
-                data["POA_Irradiance"] = float(data["POA_Irradiance"])
-            except ValueError:
-                data["POA_Irradiance"] = None
-
-        # Convert meter_power to float
-        if data.get("meter_power") is not None:
-            try:
-                data["meter_power"] = float(data["meter_power"])
-            except ValueError:
-                data["meter_power"] = None
+        data["POA_Irradiance"] = format_string_value(data.get("POA_Irradiance"))
+        data["meter_power"] = format_string_value(data.get("meter_power"))
 
         if data.get("is_day") is True:
             data["is_day"] = "Day"
