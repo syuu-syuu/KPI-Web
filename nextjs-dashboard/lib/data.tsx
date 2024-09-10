@@ -1,40 +1,31 @@
-import { SiteMonthlyData } from "./definitions";
+import { fetchAvailableTimeRange, fetchOriginalRawData } from '@/lib/api';
+import { DateRange } from "react-day-picker"
 
-export const siteMonthlyDataSample: SiteMonthlyData[] = [
-    {
-        timestamp: "2023-09-01T00:00:00",
-        poaIrradiance: -0.263722,
-        meterPower: null,
-        inverters: [
-            { inverterOriginalName:"A", inverterFormattedName: "Inverter_1", value: 0.0 },
-            { inverterOriginalName:"B",inverterFormattedName: "Inverter_2", value: 0.0 },
-            { inverterOriginalName:"C",inverterFormattedName: "Inverter_3", value: 0.0 },
-            { inverterOriginalName:"D",inverterFormattedName: "Inverter_4", value: 0.0 },
-        ],
-        dayNight: "Night",
-    },
-    {
-        timestamp: "2023-09-01T06:00:00",
-        poaIrradiance: 4.741910,
-        meterPower: null,
-        inverters: [
-            { inverterOriginalName:"A",inverterFormattedName: "Inverter_1", value: 7.745 },
-            { inverterOriginalName:"B",inverterFormattedName: "Inverter_2", value: 8.236668 },
-            { inverterOriginalName:"C",inverterFormattedName: "Inverter_3", value: 9.295 },
-            { inverterOriginalName:"D",inverterFormattedName: "Inverter_4", value: 8.701668 },
-        ],
-        dayNight: "Day",
-    },
-    {
-        timestamp: "2023-09-01T08:00:00",
-        poaIrradiance: 23.572520,
-        meterPower: null,
-        inverters: [
-            { inverterOriginalName:"A",inverterFormattedName: "Inverter_1", value: 37.06833 },
-            { inverterOriginalName:"B",inverterFormattedName: "Inverter_2", value: 42.31833 },
-            { inverterOriginalName:"C",inverterFormattedName: "Inverter_3", value: 49.03667 },
-            { inverterOriginalName:"D",inverterFormattedName: "Inverter_4", value: 47.44667 },
-        ],
-        dayNight: "Day",
+export async function loadTimeRange(site_id: string) {
+  try {
+    const data = await fetchAvailableTimeRange(site_id);
+    if (data?.earliest && data?.latest) {
+      console.log("Time range data:", data.earliest, "-", data.latest);
+      const availableDateRange = {
+        from: new Date(data.earliest),
+        to: new Date(data.latest),
+      }
+      return availableDateRange;
+    } else {
+      console.error("Time range data is missing or invalid");
     }
-];
+  } catch (error) {
+    console.error("Error fetching available time range:", error);
+    throw error;
+  }
+}
+
+export async function loadOriginalRawData(site_id: string, start_date: Date | undefined, end_date: Date | undefined) {
+    try {
+      const fetchedData = await fetchOriginalRawData(site_id, start_date, end_date);
+      return fetchedData;
+    } catch (error) {
+      console.error("Error fetching original raw data:", error);
+      throw error;
+    }
+}

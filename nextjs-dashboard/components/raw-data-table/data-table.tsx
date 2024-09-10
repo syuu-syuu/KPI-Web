@@ -1,5 +1,5 @@
 "use client"
-import { useState } from 'react'
+import { useState, useEffect, use } from 'react'
 import {
   ColumnFiltersState,
   SortingState,
@@ -22,30 +22,68 @@ import {
 } from "@/components/ui/table"
 
 import TableModeSelector from './table-mode-selector';
-import { DatePickerWithRange } from '@/components/date-picker'
+import DatePickerWithRange  from '@/components/date-picker'
 import { get } from 'http';
-import { getColumns, SiteMonthlyData } from './columns';
+import { getColumns} from './columns';
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { DataTableToolbar } from './toolbar';
 import { DataTablePagination } from './pagination';
+import { fetchOriginalRawData } from '@/lib/api';
+import { DateRange } from "react-day-picker"
+import { SiteMonthlyData } from '@/lib/definitions'
+import { loadTimeRange, loadOriginalRawData} from '@/lib/data';
 
 interface DataTableProps<TData> {
   data: TData[]
+  site_id: string
 }
 
-
-const DataTable= ({data}: DataTableProps<SiteMonthlyData>) => {
+const DataTable= ({data, site_id}: DataTableProps<SiteMonthlyData>) => {  
   const [selectedMode, setSelectedMode] = useState('original');
+  const columns = getColumns(selectedMode);
+
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
   const [sorting, setSorting] = useState<SortingState>([])
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>(
     []
   )
-  const columns = getColumns(selectedMode);
+
+
+  const [dateRange, setDateRange] = useState<DateRange>()
+  const [originalRawData, setOriginalRawData] = useState<SiteMonthlyData[]>(data)
+
+  useEffect(() => { 
+    async function loadInitialTimeRange() {
+    try {
+      const availableDateRange = await loadTimeRange(site_id)
+      setDateRange(availableDateRange)   
+    } catch (error) {
+      console.error("Error fetching available time range:", error);
+    }
+  }
+  loadInitialTimeRange();
+  }, [site_id]);
+
+  useEffect(() => { 
+    async function loadTableData() {
+      try {
+        const fetchedData = await loadOriginalRawData(site_id, dateRange?.from, dateRange?.to)
+        setOriginalRawData(fetchedData)
+      } catch (error) {
+        console.error("Error fetching original raw data:", error);
+      }  
+    }
+    loadTableData();
+  }, [site_id, dateRange]);
+
+
+  const handleDateRangeChange = (newDateRange: DateRange | undefined) => {
+      setDateRange(newDateRange);
+  }
   
   const table = useReactTable({
-    data,
+    data: originalRawData,
     columns,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
@@ -65,7 +103,7 @@ const DataTable= ({data}: DataTableProps<SiteMonthlyData>) => {
   return (
     <div>
       <div className="flex mt-6 mb-6 space-x-6" > 
-        <DatePickerWithRange />
+        <DatePickerWithRange site_id = {site_id} onDateRangeChange={handleDateRangeChange}/>
         <TableModeSelector selectedMode={selectedMode} setSelectedMode={setSelectedMode} />
       </div>             
 
@@ -122,8 +160,6 @@ const DataTable= ({data}: DataTableProps<SiteMonthlyData>) => {
         <DataTablePagination table={table} />
       </div>
       
-
-  
 
       {(selectedMode === 'auto-processed'||"expected") && (
         <div className="flex space-x-2 mt-2 justify-end">

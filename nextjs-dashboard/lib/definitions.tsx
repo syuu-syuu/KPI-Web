@@ -30,3 +30,16 @@ export interface NavLinksProps {
   toggleMenuItem: (itemName: string) => void; // Function to toggle the expanded state of a menu item
 }
 
+
+export interface InverterData {
+    inverter_name: string;
+    value: number | null;
+}
+
+export interface SiteMonthlyData {
+    is_day: "Day" | "Night" | "Unknown"; 
+    timestamp: string; // ISO string format for date and time
+    POA_Irradiance: number;
+    meter_power: number | null;
+    inverters: InverterData[];
+}

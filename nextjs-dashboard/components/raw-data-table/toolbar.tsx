@@ -44,9 +44,9 @@ export function DataTableToolbar<TData>({
   return (
     <div className="flex items-center justify-between mb-2">
       <div className="flex flex-1 items-center space-x-2">
-        {table.getColumn("dayNight") && (
+        {table.getColumn("is_day") && (
           <DataTableFacetedFilter
-            column={table.getColumn("dayNight")}
+            column={table.getColumn("is_day")}
             title="Day/Night"
             options={dayNight}
           />
