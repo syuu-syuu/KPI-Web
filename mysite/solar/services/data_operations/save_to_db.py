@@ -1,14 +1,14 @@
 import pandas as pd
 from decimal import Decimal
 from django.core.exceptions import ObjectDoesNotExist
-from solar.models import Site, SiteMonthlyData, InverterData, InverterNameMapping
+from solar.models import Site, SiteHourlyData, InverterData, InverterNameMapping
 
 
 def save_inverter_name_mappings(site_id, name_mapping):
     try:
         site = Site.objects.get(pk=site_id)
         for formatted_name, original_name in name_mapping.items():
-            InverterNameMapping.objects.get_or_create(
+            InverterNameMapping.objects.update_or_create(
                 site=site,
                 original_name=original_name,
                 defaults={"formatted_name": formatted_name},
@@ -44,16 +44,18 @@ def save_processed_data_to_db(df, site_id):
         # Convert 'Day/Night' to boolean
         is_day = {"day": True, "night": False}.get(row["Day/Night"].lower(), None)
 
-        # Create and save SiteMonthlyData instance
-        monthly_data = SiteMonthlyData.objects.create(
+        # Upsert: Create or update SiteHourlyData instance
+        site_hourly_data, created = SiteHourlyData.objects.update_or_create(
             site=site,
             timestamp=timestamp,
-            POA_Irradiance=poa_irradiance,
-            meter_power=meter_power,
-            is_day=is_day,
+            defaults={
+                "POA_Irradiance": poa_irradiance,
+                "meter_power": meter_power,
+                "is_day": is_day,
+            },
         )
 
-        # Create and save InverterData instances
+        # Upsert: Create or update InverterData instances
         inverter_columns = [col for col in df.columns if col.startswith("Inverter_")]
         for inverter_col in inverter_columns:
             inverter_value = (
@@ -61,8 +63,8 @@ def save_processed_data_to_db(df, site_id):
                 if pd.isna(row.get(inverter_col))
                 else Decimal(str(row[inverter_col])).quantize(Decimal("0.000001"))
             )
-            InverterData.objects.create(
-                monthly_data=monthly_data,
+            InverterData.objects.update_or_create(
+                site_hourly_data=site_hourly_data,
                 inverter_name=inverter_col,
-                value=inverter_value,
+                defaults={"value": inverter_value},
             )
