@@ -1,18 +1,19 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import (
-    SiteViewSet,
-    UploadFileView,
-    SiteMonthlyDataViewSet,
-)
+from .views import SiteViewSet, UploadFileView, SiteHourlyDataViewSet, KPIViewSet
 
 # router = DefaultRouter(trailing_slash=False)
 router = DefaultRouter()
 router.register(r"sites", SiteViewSet, basename="site")
 router.register(
     r"site_monthly_data",
-    SiteMonthlyDataViewSet,
+    SiteHourlyDataViewSet,
     basename="site_monthly_data",
+)
+router.register(
+    r"kpi",
+    KPIViewSet,
+    basename="kpi",
 )
 
 urlpatterns = [

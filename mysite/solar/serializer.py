@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Site, SiteMonthlyData, InverterData
+from .models import Site, SiteHourlyData, InverterData
 from decimal import Decimal
 import re
 
@@ -35,11 +35,11 @@ class InverterDataSerializer(serializers.ModelSerializer):
         return data
 
 
-class SiteMonthlyDataSerializer(serializers.ModelSerializer):
+class SiteHourlyDataSerializer(serializers.ModelSerializer):
     inverters = InverterDataSerializer(many=True, read_only=True)
 
     class Meta:
-        model = SiteMonthlyData
+        model = SiteHourlyData
         fields = ["timestamp", "POA_Irradiance", "meter_power", "is_day", "inverters"]
 
     def to_representation(self, instance):

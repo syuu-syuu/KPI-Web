@@ -5,10 +5,18 @@ from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.decorators import action
 from django.http import JsonResponse
 from .services.file_processor.process_files import read_uploaded_files
-from .serializer import SiteSerializer, SiteMonthlyDataSerializer
-from .models import Site, SiteMonthlyData, InverterData
-from datetime import datetime
+from .serializer import SiteSerializer, SiteHourlyDataSerializer
+from .models import Site, SiteHourlyData, InverterData
 from dateutil import parser
+from .services.data_operations.process_data import process_site_hourly_data
+from .services.data_operations.calculate_expected import calculate_expected
+from .services.data_operations.calculate_availability import (
+    calculate_daily_availability,
+    calculate_monthly_availability,
+    calculate_cumulative_availability,
+    calculate_cumulative_availability_for_new_month,
+)
+from django.shortcuts import get_object_or_404
 
 
 class SiteViewSet(viewsets.ModelViewSet):
@@ -56,14 +64,14 @@ class UploadFileView(APIView):
             )
 
 
-class SiteMonthlyDataViewSet(viewsets.ViewSet):
-    queryset = SiteMonthlyData.objects.all()
+class SiteHourlyDataViewSet(viewsets.ViewSet):
+    queryset = SiteHourlyData.objects.all()
 
     @action(detail=False, methods=["get"])
     def get_available_time_range(self, request):
         site_id = request.query_params.get("site_id")
         print(f"Getting available time range for current site ID: {site_id}")
-        site_data = SiteMonthlyData.objects.filter(site_id=site_id)
+        site_data = SiteHourlyData.objects.filter(site_id=site_id)
         earliest = site_data.order_by("timestamp").first()
         latest = site_data.order_by("-timestamp").first()
         if earliest and latest:
@@ -77,7 +85,7 @@ class SiteMonthlyDataViewSet(viewsets.ViewSet):
         return JsonResponse({"error": "No data found for this site"}, status=404)
 
     @action(detail=False, methods=["get"])
-    def get_original_raw(self, request):
+    def get_original(self, request):
         site_id = request.query_params.get("site_id")
         start_date = request.query_params.get("start_date")
         end_date = request.query_params.get("end_date")
@@ -95,11 +103,38 @@ class SiteMonthlyDataViewSet(viewsets.ViewSet):
             return Response({"error": "Invalid date format"}, status=400)
 
         queryset = (
-            SiteMonthlyData.objects.all()
+            SiteHourlyData.objects.all()
             .filter(site_id=site_id, timestamp__range=(start_date, end_date))
             .prefetch_related("inverters")
         )
 
-        serializer = SiteMonthlyDataSerializer(queryset, many=True)
+        serializer = SiteHourlyDataSerializer(queryset, many=True)
         # print(queryset, serializer.data)
         return Response(serializer.data)
+
+    @action(detail=False, methods=["post"])
+    def process_original(self, request):
+        site_id = request.data.get("site_id")
+
+        if not site_id:
+            return Response({"error": "Missing site_id"}, status=400)
+
+        try:
+            process_site_hourly_data(site_id)
+            return Response({"success": "Data processed successfully"})
+        except Exception as e:
+            return Response({"error": str(e)}, status=500)
+
+
+class KPIViewSet(viewsets.ViewSet):
+    @action(detail=False, methods=["post"])
+    def calculate_availabilities(self, request, year=None, month=None):
+        site_id = request.data.get("site_id")
+        site = get_object_or_404(Site, pk=site_id)
+
+        calculate_expected(site_id)
+        calculate_daily_availability(site, year, month)
+        calculate_monthly_availability(site, year, month)
+        calculate_cumulative_availability(site, year, month)
+
+        return Response({"status": "Availability calculations complete."})
