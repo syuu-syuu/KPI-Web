@@ -72,7 +72,7 @@ class Site(models.Model):
         return self.site_name
 
 
-class SiteMonthlyData(models.Model):
+class SiteHourlyData(models.Model):
     site = models.ForeignKey(Site, on_delete=models.CASCADE)
     timestamp = models.DateTimeField()
     POA_Irradiance = models.DecimalField(max_digits=20, decimal_places=6)
@@ -83,19 +83,55 @@ class SiteMonthlyData(models.Model):
         null=True, blank=True
     )  # Allows storing NULL for 'Unknown'
 
+    # Processed data fields
+    DATA_STATUS_CHOICES = [
+        ("A", "A - No issues, no changes"),
+        ("B", "B - Issues, auto-corrected"),
+        ("C", "C - Issues, auto-corrected, manual investigation required"),
+        ("D", "D - Unprocessed"),
+    ]
+    status = models.CharField(max_length=1, choices=DATA_STATUS_CHOICES, default="D")
+    count_should_on_but_not = models.IntegerField(null=True, blank=True)
+    count_missing = models.IntegerField(null=True, blank=True)
+
+    # User actions field for status C
+    ACTION_STATUS_CHOICES = [
+        ("A", "Action needed"),
+        ("B", "Manually investigated and approved/edited"),
+        ("C", "Added to exclusive outage"),
+    ]
+
+    action_status = models.CharField(
+        max_length=2, choices=ACTION_STATUS_CHOICES, null=True, blank=True
+    )
+
+    is_exclusive = models.BooleanField(default=False)
+
     def __str__(self):
-        return f"{self.site.site_name} - {self.timestamp} - {'Day' if self.is_day else 'Night'}"
+        return f"{self.site.site_name} - {self.timestamp} - {self.meter_power} - {'Day' if self.is_day else 'Night'} - Status: {self.get_status_display()}"
 
 
 class InverterData(models.Model):
-    monthly_data = models.ForeignKey(
-        SiteMonthlyData, related_name="inverters", on_delete=models.CASCADE
+    site_hourly_data = models.ForeignKey(
+        SiteHourlyData, related_name="inverters", on_delete=models.CASCADE
     )
     inverter_name = models.CharField(max_length=100)
+
     value = models.DecimalField(max_digits=20, decimal_places=6, null=True, blank=True)
 
+    processed_value = models.DecimalField(
+        max_digits=20, decimal_places=6, null=True, blank=True
+    )
+    is_modified = models.BooleanField(default=False)
+
+    is_exclusive = models.BooleanField(default=False)
+
+    expected_value = models.DecimalField(
+        max_digits=20, decimal_places=6, null=True, blank=True
+    )
+
     def __str__(self):
-        return f"{self.inverter_name} - {self.value}"
+        return f"{self.inverter_name} - Processed: {self.processed_value}, Expected: {self.expected_value}"
 
 
 class InverterNameMapping(models.Model):
@@ -109,15 +145,58 @@ class InverterNameMapping(models.Model):
         return f"{self.site.site_name}: {self.formatted_name} -> {self.original_name}"
 
 
-class ExclusiveOutage(models.Model):
+class SiteDailySummary(models.Model):
     site = models.ForeignKey(Site, on_delete=models.CASCADE)
-    start_time = models.DateTimeField()
-    end_time = models.DateTimeField()
-    impacted_inverters = models.ManyToManyField(InverterData, related_name="outages")
+    date = models.DateField()
+
+    # Aggregated totals and calculated availability
+    actual_total = models.DecimalField(max_digits=20, decimal_places=6)
+    expected_total = models.DecimalField(max_digits=20, decimal_places=6)
+    availability = models.DecimalField(max_digits=5, decimal_places=2)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=["site", "date"], name="unique_site_date")
+        ]
 
     def __str__(self):
-        return f"{self.site.site_name} - {self.start_time} to {self.end_time}"
+        return f"Daily Availability: {self.site.site_name} - {self.date} - {self.availability}%"
 
-    @property
-    def duration(self):
-        return self.end_time - self.start_time
+
+class SiteMonthlySummary(models.Model):
+    site = models.ForeignKey(Site, on_delete=models.CASCADE)
+    year_month = models.PositiveIntegerField()  # 202409 - 2024 September
+
+    # Aggregated totals and calculated availability
+    actual_total = models.DecimalField(max_digits=20, decimal_places=6)
+    expected_total = models.DecimalField(max_digits=20, decimal_places=6)
+    availability = models.DecimalField(max_digits=5, decimal_places=2)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["site", "year_month"], name="unique_site_year_month"
+            )
+        ]
+
+    def __str__(self):
+        return f"Monthly Availability: {self.site.site_name} - {self.year_month} - {self.availability}%"
+
+
+class SiteCumulativeMonthlySummary(models.Model):
+    site = models.ForeignKey(Site, on_delete=models.CASCADE)
+    year_month = models.PositiveIntegerField()  # 202409 - 2024 September
+
+    cumulative_actual_total = models.DecimalField(max_digits=20, decimal_places=6)
+    cumulative_expected_total = models.DecimalField(max_digits=20, decimal_places=6)
+    cumulative_availability = models.DecimalField(max_digits=5, decimal_places=2)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["site", "year_month"], name="unique_cumulative_site_year_month"
+            )
+        ]
+
+    def __str__(self):
+        return f"Cumulative Availability: {self.site.site_name} - {self.year_month} - {self.cumulative_availability}%"
