@@ -1,12 +1,12 @@
 "use client"
+
 import React, { useState, useEffect } from 'react'
 import { useRouter } from 'next/router'
+
 // Import React FilePond
 import { FilePond, registerPlugin } from 'react-filepond'
-
 // Import FilePond styles
 import 'filepond/dist/filepond.min.css'
-
 // Import the Image EXIF Orientation and Image Preview plugins
 // Note: These need to be installed separately
 // `npm i filepond-plugin-image-preview filepond-plugin-image-exif-orientation --save`
@@ -14,28 +14,23 @@ import FilePondPluginImageExifOrientation from 'filepond-plugin-image-exif-orien
 import FilePondPluginImagePreview from 'filepond-plugin-image-preview'
 import 'filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css'
 import { FilePondFile } from 'filepond'
-import { fetchSiteDetails } from '@/lib/api'
+// Register the plugins
+registerPlugin(FilePondPluginImageExifOrientation, FilePondPluginImagePreview)
+
+import { fetchSiteDetails, fetchOriginalRawData} from '@/lib/api'
 import { SiteDetail } from '@/lib/definitions'
 import SiteDetailsForm from '@/components/site-details-form'
-// import { MonthPicker, MonthInput } from 'react-lite-month-picker';
 import DataTable from '@/components/raw-data-table/data-table'
-// import { SiteMonthlyData, columns } from '@/components/data-table/columns'
 import { siteMonthlyDataSample } from '@/components/raw-data-table/data'
 import { ExclusiveOutageDataTable } from '@/components/exclusive-outages-table/data-table'
 import { exclusiveOutageDataSample } from '@/components/exclusive-outages-table/data'
 import {columns} from '@/components/exclusive-outages-table/columns'
-// Register the plugins
-registerPlugin(FilePondPluginImageExifOrientation, FilePondPluginImagePreview)
 
 const SitePage = () => {
   const router = useRouter()
   const site_id = router.query.site_id as string;
   const [files, setFiles] = useState<File[]>([]);
   const [SiteDetails, setSiteDetails] = useState<SiteDetail>();
-  const [selectedMonthData, setSelectedMonthData] = useState({
-    month: new Date().getMonth() + 1,
-    year: new Date().getFullYear(),
-  });
   console.log("router.isReady:", router.isReady);
   console.log(site_id); 
 
@@ -53,11 +48,15 @@ const SitePage = () => {
   
 }, [site_id]);
 
+  const updateSiteDetails = (updatedDetails: SiteDetail) => {
+      setSiteDetails(updatedDetails);
+    };
+
 
   return (
     <>
       <h1 className='mb-6'> {SiteDetails?.site_name} </h1> 
-      <SiteDetailsForm siteDetails={SiteDetails} />
+      <SiteDetailsForm site_id={site_id} siteDetails={SiteDetails} onUpdateSiteDetails={updateSiteDetails}/>
      
       <div className="flex items-center space-x-4 mt-6">
 
@@ -94,10 +93,10 @@ const SitePage = () => {
       </div>
 
       
-      <DataTable data={siteMonthlyDataSample} />
-      <div className='mt-6'>
+      <DataTable data={siteMonthlyDataSample} site_id={site_id}/>
+      {/* <div className='mt-6'>
         <ExclusiveOutageDataTable data={exclusiveOutageDataSample} columns={columns}/>
-      </div>
+      </div> */}
     </>
   );
 }

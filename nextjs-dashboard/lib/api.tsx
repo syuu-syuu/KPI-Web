@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { SiteDetail,  SiteMonthlyData } from '@/lib/definitions'
+import { SiteDetail,  SiteHourlyData } from '@/lib/definitions'
 
 // axios.interceptors.response.use(
 //   response => response, // Let the response pass through if it's successful
@@ -35,6 +35,18 @@ export const fetchSiteDetails = async (site_id: string): Promise<SiteDetail> => 
   }
 };
 
+
+export const submitSiteDetails = async (site_id: string, siteData: Record<string, any>) => {
+  try {
+    const response = await axios.put(`/api/sites/${site_id}/`, siteData);
+    console.log('Site data submitted successfully:', response.data);
+    return response.data;
+  } catch (error) {
+    console.error('❌ Error submitting site data:', error);
+  }
+};
+
+
 export async function fetchAvailableTimeRange(site_id: string | null) {
   if (!site_id) {
     console.warn("⚠️ site_id is null or undefined, skipping API request");
@@ -42,7 +54,11 @@ export async function fetchAvailableTimeRange(site_id: string | null) {
   }
 
   try {
-    const response = await axios.get(`/api/get_available_time_range/${site_id}`);
+    const response = await axios.get("/api/site_monthly_data/get_available_time_range", {
+      params: {
+          site_id,
+        }
+    });
     console.log("✅ Successfully fetched available time range", response.data);
     return response.data;
   } catch (error) { 
@@ -51,13 +67,13 @@ export async function fetchAvailableTimeRange(site_id: string | null) {
   }
 }
 
-export async function fetchOriginalRawData(site_id: string, start_date: Date | undefined, end_date: Date | undefined): Promise<SiteMonthlyData[]> {
+export async function fetchOriginalRawData(site_id: string, start_date: Date | undefined, end_date: Date | undefined): Promise<SiteHourlyData[]> {
     try {
       // Convert dates to ISO string format - a widely accepted standard
       const startDateStr = start_date?.toISOString();
       const endDateStr = end_date?.toISOString();
       
-      const response = await axios.get('/api/site_monthly_data/list_original', {
+      const response = await axios.get('/api/site_monthly_data/get_original', {
         params: {
           site_id,
           start_date: startDateStr,

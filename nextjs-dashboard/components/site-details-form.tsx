@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { SiteDetail, STATE_CHOICES } from '@/lib/definitions';
+import { useRouter } from 'next/router'
+import { SiteDetailsFormProps, SiteDetail, STATE_CHOICES } from '@/lib/definitions';
 
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
@@ -24,12 +25,9 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
-import { render } from "react-dom";
-import { ST } from "next/dist/shared/lib/utils";
+import { fetchSiteDetails, submitSiteDetails } from "@/lib/api";
+import { set } from "date-fns";
 
-interface SiteDetailsFormProps {
-  siteDetails: SiteDetail | undefined;
-}
 
 // Define the schema for form validation using Zod
 const formSchema = z.object({
@@ -62,8 +60,9 @@ const formFields: {
 ];
 
 
-export const SiteDetailsForm: React.FC<SiteDetailsFormProps> = ({ siteDetails }) => {
+export const SiteDetailsForm: React.FC<SiteDetailsFormProps> = ({ site_id, siteDetails, onUpdateSiteDetails}) => {
   // Use react-hook-form to create the form with zod validation
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -77,6 +76,7 @@ export const SiteDetailsForm: React.FC<SiteDetailsFormProps> = ({ siteDetails })
       contract_end_month: siteDetails?.contract_end_month,
     },
   });
+
 
 
   // UseEffect to update the form default values when siteDetails changes
@@ -96,8 +96,32 @@ export const SiteDetailsForm: React.FC<SiteDetailsFormProps> = ({ siteDetails })
   }, [siteDetails, form]);
 
   // Form submit handler
-  const onSubmit = (values: z.infer<typeof formSchema>) => {
-    console.log("Form submitted", values);
+  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    const siteData = {
+      ...values,
+      site_id: site_id,  // Include site_id in the siteData
+      latitude: values.latitude?.toString(),
+      longitude: values.longitude?.toString(),
+      contract_start_month: values.contract_start_month?.toString(),
+      contract_end_month: values.contract_end_month?.toString(),
+    };
+
+    console.log("Form submitted", siteData);
+    const response = await submitSiteDetails(site_id, siteData);
+    console.log("Response:", response);
+
+    const { site_id: responseSiteId, ...rest } = response;
+
+    const updatedSiteDetails = {
+      ...rest,
+      latitude: parseFloat(response.latitude),
+      longitude: parseFloat(response.longitude),
+      contract_start_month: parseInt(response.contract_start_month),
+      contract_end_month: parseInt(response.contract_end_month)
+    }
+
+    onUpdateSiteDetails(updatedSiteDetails);
+      
   };
 
   const renderInputField = (name: keyof z.infer<typeof formSchema>, label: string, type: string) => (
