@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useRouter } from 'next/router'
-import { SiteDetailsFormProps, SiteDetail, STATE_CHOICES } from '@/lib/definitions';
+import { SiteDetailsFormProps, SiteDetail, STATE_CHOICES, STATE_MAP } from '@/lib/definitions';
 
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
@@ -16,6 +16,22 @@ import {
 } from "@/components/ui/select"
 
 import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command"
+
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover"
+
+import { Check, ChevronsUpDown } from "lucide-react"
+import {
   Form,
   FormControl,
   FormDescription,
@@ -28,7 +44,7 @@ import { Input } from "@/components/ui/input"
 import { fetchSiteDetails, submitSiteDetails } from "@/lib/api";
 import { set } from "date-fns";
 
-
+import { cn } from "@/lib/utils"
 // Define the schema for form validation using Zod
 const formSchema = z.object({
   site_name: z.string(),
@@ -124,7 +140,7 @@ export const SiteDetailsForm: React.FC<SiteDetailsFormProps> = ({ site_id, siteD
       
   };
 
-  const renderInputField = (name: keyof z.infer<typeof formSchema>, label: string, type: string) => (
+  const renderInputField = (name: keyof z.infer<typeof formSchema>, label: string) => (
     <FormField
       control={form.control}
       name={name}
@@ -132,7 +148,7 @@ export const SiteDetailsForm: React.FC<SiteDetailsFormProps> = ({ site_id, siteD
         <FormItem>
           <FormLabel>{label}</FormLabel>
           <FormControl>
-            <Input placeholder={`Enter ${label.toLowerCase()}`} type={type} {...field} />
+            <Input placeholder={`Enter ${label.toLowerCase()}`} type='text' {...field} />
           </FormControl>
           <FormMessage />
         </FormItem>
@@ -140,27 +156,85 @@ export const SiteDetailsForm: React.FC<SiteDetailsFormProps> = ({ site_id, siteD
     />
   );
 
-  const renderSelectField = (name: keyof z.infer<typeof formSchema>, label: string, options: string[]) => (
-    <FormField
+  // const renderSelectField = (name: keyof z.infer<typeof formSchema>, label: string, options: string[]) => (
+  //   <FormField
+  //     control={form.control}
+  //     name={name}
+  //     render={({ field }) => (
+  //       <FormItem>
+  //         <FormLabel>{label}</FormLabel>
+  //         <Select onValueChange={field.onChange} value={field.value?.toString()}>
+  //           <FormControl>
+  //             <SelectTrigger>
+  //               <SelectValue placeholder={`Select ${label.toLowerCase()}`} />
+  //             </SelectTrigger>
+  //           </FormControl>
+  //           <SelectContent>
+  //             {options.map(option => (
+  //               <SelectItem key={option} value={option}>
+  //                 {option}
+  //               </SelectItem>
+  //             ))}
+  //           </SelectContent>
+  //         </Select>
+  //         <FormMessage />
+  //       </FormItem>
+  //     )}
+  //   />
+  // );
+
+  const redernComboField = (name: keyof z.infer<typeof formSchema>, label: string) => ( <FormField
       control={form.control}
       name={name}
       render={({ field }) => (
         <FormItem>
           <FormLabel>{label}</FormLabel>
-          <Select onValueChange={field.onChange} value={field.value?.toString()}>
+          <Popover>
             <FormControl>
-              <SelectTrigger>
-                <SelectValue placeholder={`Select ${label.toLowerCase()}`} />
-              </SelectTrigger>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  role="combobox"
+                  className={cn(
+                      "w-full justify-between",
+                      !field.value && "text-muted-foreground"
+                    )}
+                >
+                  {field.value
+                    ? `${field.value} - ${STATE_MAP[field.value as keyof typeof STATE_MAP]}`
+                    : `Select ${label.toLowerCase()}`}
+                  <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                </Button>
+              </PopoverTrigger>
             </FormControl>
-            <SelectContent>
-              {options.map(option => (
-                <SelectItem key={option} value={option}>
-                  {option}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+            <PopoverContent className="w-[--radix-popover-trigger-width] max-h-[--radix-popover-content-available-height]">
+              <Command>
+                <CommandInput placeholder="Search a state..." className="border-0 focus-visible:ring-0"/>
+                <CommandList>
+                  <CommandEmpty>No State found.</CommandEmpty>
+                  <CommandGroup>
+                    {Object.entries(STATE_MAP).map(([abbreviation, fullName]) => (
+                      <CommandItem
+                        key={abbreviation}
+                        value={abbreviation}
+                        onSelect={() => {
+                          form.setValue(name, abbreviation);
+                        }}
+                      >
+                        <Check
+                          className={cn(
+                            "mr-2 h-4 w-4",
+                            abbreviation === field.value ? "opacity-100" : "opacity-0"
+                          )}
+                        />
+                        {`${abbreviation} - ${fullName}`}
+                      </CommandItem>
+                    ))}
+                  </CommandGroup>
+                </CommandList>
+              </Command>
+            </PopoverContent>
+          </Popover>
           <FormMessage />
         </FormItem>
       )}
@@ -174,8 +248,9 @@ export const SiteDetailsForm: React.FC<SiteDetailsFormProps> = ({ site_id, siteD
       {/* Render each field individually */}
       {formFields.map(({ name, label }) => {
         return name === "state"
-          ? renderSelectField(name as keyof z.infer<typeof formSchema>, label, STATE_CHOICES)
-          : renderInputField(name as keyof z.infer<typeof formSchema>, label, "text");
+          // ? renderSelectField(name as keyof z.infer<typeof formSchema>, label, STATE_CHOICES)\
+          ? redernComboField(name as keyof z.infer<typeof formSchema>, label)
+          : renderInputField(name as keyof z.infer<typeof formSchema>, label);
       })}
 
       {/* Submit Button */}
