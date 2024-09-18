@@ -13,7 +13,7 @@ import {
 
 import { SiteMenuItem, NavLink } from '@/lib/definitions';
 import { NavLinks } from '@/components/side-nav/nav-links';
-import { useSiteMenuContext } from '@/contexts/SiteMenuContext';
+import { useSiteMenuContext } from '@/hooks/use-nav';
 
 
 const createMenuItems = (siteMenuItems: SiteMenuItem[]): NavLink[] => {

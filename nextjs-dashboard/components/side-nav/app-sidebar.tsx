@@ -24,11 +24,11 @@ import {
   Turtle,
 } from "lucide-react"
 
-import { NavMain } from "@/components/nav-main"
-import { NavSecondary } from "@/components/nav-secondary"
-import { NavUser } from "@/components/nav-user"
-import { StorageCard } from "@/components/storage-card"
-import { TeamSwitcher } from "@/components/team-switcher"
+import { NavMain } from "@/components/side-nav/nav-main"
+import { NavSecondary } from "@/components/side-nav/nav-secondary"
+import { NavUser } from "@/components/side-nav/nav-user"
+import { StorageCard } from "@/components/side-nav/storage-card"
+import { TeamSwitcher } from "@/components/side-nav/team-switcher"
 import {
   Sidebar,
   SidebarContent,
@@ -36,7 +36,7 @@ import {
   SidebarHeader,
   SidebarItem,
   SidebarLabel,
-} from "@/components/ui/sidebar"
+} from "@/components/side-nav/sidebar"
 
 import { SiteMenuItem } from '@/lib/definitions';
 

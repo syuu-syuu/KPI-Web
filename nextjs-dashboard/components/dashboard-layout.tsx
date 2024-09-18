@@ -1,8 +1,8 @@
-import { AppSidebar } from "@/components/app-sidebar"
+import { AppSidebar } from "@/components/side-nav/app-sidebar"
 import {
   SidebarLayout,
   SidebarTrigger,
-} from "@/components/ui/sidebar"
+} from "@/components/side-nav/sidebar"
 import { SiteProvider } from '@/hooks/use-nav';
 
 
