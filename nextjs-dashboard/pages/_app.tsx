@@ -1,7 +1,7 @@
 import { NextComponentType, NextPageContext } from 'next';
 import { AppProps } from 'next/app';
 import Layout from '@/components/layout';
-
+import DashboardLayout from '@/components/dashboard-layout';
 import '@/styles/global.css';
 
 type MyAppProps = AppProps & {
@@ -16,9 +16,12 @@ function Dashboard({ Component, pageProps }: MyAppProps) {
       {noLayout ? (
         <Component {...pageProps} />
       ) : (
-        <Layout>
+        // <Layout>
+        //   <Component {...pageProps} />
+        // </Layout>
+        <DashboardLayout>
           <Component {...pageProps} />
-        </Layout>
+        </DashboardLayout>
       )}
     </>
   );

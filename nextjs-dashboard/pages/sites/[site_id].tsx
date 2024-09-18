@@ -55,7 +55,7 @@ const SitePage = () => {
 
   return (
     <>
-      <h1 className='mb-6'> {SiteDetails?.site_name} </h1> 
+      <h1 className='mb-8 font-bold text-3xl'> {SiteDetails?.site_name} </h1> 
       <SiteDetailsForm site_id={site_id} siteDetails={SiteDetails} onUpdateSiteDetails={updateSiteDetails}/>
      
       <div className="flex items-center space-x-4 mt-6">
@@ -87,7 +87,6 @@ const SitePage = () => {
             name="files" /* sets the file input name, it's filepond by default */
             labelIdle='Drag & Drop your files or <span class="filepond--label-action">Browse</span>'
             instantUpload={false}
-            className="w-full"
           />
         </div>
       </div>

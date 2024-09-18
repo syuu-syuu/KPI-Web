@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 
-import CSSLogo from '@/components/css-logo';
+import CSSLogo from '@/components/side-nav/css-logo';
 import { ArrowRightIcon } from '@heroicons/react/24/outline';
 
 
