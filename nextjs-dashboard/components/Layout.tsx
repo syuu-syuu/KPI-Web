@@ -1,5 +1,6 @@
 import SideNav from '@/components/side-nav/side-nav';
-import { SiteProvider } from '@/contexts/SiteContext';
+import { SiteProvider } from '@/hooks/use-nav';
+
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
     return (

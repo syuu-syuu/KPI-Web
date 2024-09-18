@@ -31,7 +31,7 @@ import { DataTableToolbar } from './toolbar';
 import { DataTablePagination } from './pagination';
 import { fetchOriginalRawData } from '@/lib/api';
 import { DateRange } from "react-day-picker"
-import { SiteMonthlyData } from '@/lib/definitions'
+import { SiteHourlyData } from '@/lib/definitions'
 import { loadTimeRange, loadOriginalRawData} from '@/lib/data';
 
 interface DataTableProps<TData> {
@@ -39,7 +39,7 @@ interface DataTableProps<TData> {
   site_id: string
 }
 
-const DataTable= ({data, site_id}: DataTableProps<SiteMonthlyData>) => {  
+const DataTable= ({data, site_id}: DataTableProps<SiteHourlyData>) => {  
   const [selectedMode, setSelectedMode] = useState('original');
   const columns = getColumns(selectedMode);
 
@@ -51,7 +51,7 @@ const DataTable= ({data, site_id}: DataTableProps<SiteMonthlyData>) => {
 
 
   const [dateRange, setDateRange] = useState<DateRange>()
-  const [originalRawData, setOriginalRawData] = useState<SiteMonthlyData[]>(data)
+  const [originalRawData, setOriginalRawData] = useState<SiteHourlyData[]>(data)
 
   useEffect(() => { 
     console.log("selectedMode:", selectedMode);

@@ -1,5 +1,5 @@
 "use client"
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { addDays, format } from "date-fns"
 import { Calendar as CalendarIcon } from "lucide-react"
 import { DateRange } from "react-day-picker"
@@ -13,17 +13,46 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
- 
-export function DatePickerWithRange({
-  className,
-}: React.HTMLAttributes<HTMLDivElement>) {
+
+import { fetchAvailableTimeRange } from "@/lib/api"
+import { extend } from 'leaflet'
+// import { useSitePageContext } from "@/contexts/SitePageContext"
+import { loadTimeRange } from "@/lib/data"
+
+// const { site_id } = useSitePageContext();
+interface DatePickerWithRangeProp extends React.HTMLAttributes<HTMLDivElement> {
+  site_id: string;
+  onDateRangeChange: (newDateRange: DateRange) => void;
+}
+
+const DatePickerWithRange = ({ site_id, onDateRangeChange} : DatePickerWithRangeProp) => {
   const [date, setDate] = useState<DateRange | undefined>({
-    from: new Date(2022, 0, 20),
-    to: addDays(new Date(2022, 0, 20), 20),
-  })
+        from: new Date(2023, 0, 20),
+        to: addDays(new Date(2023, 0, 20), 20),
+  });
+  
+
+  useEffect(() => { 
+    async function loadInitialTimeRange() {
+    try {
+      const availableDateRange = await loadTimeRange(site_id)
+      setDate(availableDateRange)   
+    } catch (error) {
+      console.error("Error fetching available time range:", error);
+    }
+  }
+  loadInitialTimeRange();
+  }, [site_id]);
+
+  const handleDateChange = (newDateRange: DateRange | undefined) => {
+    setDate(newDateRange);
+    if (newDateRange && newDateRange.from && newDateRange.to) {
+      onDateRangeChange(newDateRange); // Notify parent with the new selected date range
+    }
+  };
  
   return (
-    <div className={cn("grid gap-2", className)}>
+    <div className={cn("grid gap-2")}>
       <Popover>
         <PopoverTrigger asChild>
           <Button
@@ -55,7 +84,7 @@ export function DatePickerWithRange({
             mode="range"
             defaultMonth={date?.from}
             selected={date}
-            onSelect={setDate}
+            onSelect={handleDateChange}
             numberOfMonths={2}
           />
         </PopoverContent>
@@ -63,3 +92,5 @@ export function DatePickerWithRange({
     </div>
   )
 }
+
+export default DatePickerWithRange

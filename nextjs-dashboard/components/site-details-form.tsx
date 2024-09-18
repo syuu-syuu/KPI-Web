@@ -156,33 +156,6 @@ export const SiteDetailsForm: React.FC<SiteDetailsFormProps> = ({ site_id, siteD
     />
   );
 
-  // const renderSelectField = (name: keyof z.infer<typeof formSchema>, label: string, options: string[]) => (
-  //   <FormField
-  //     control={form.control}
-  //     name={name}
-  //     render={({ field }) => (
-  //       <FormItem>
-  //         <FormLabel>{label}</FormLabel>
-  //         <Select onValueChange={field.onChange} value={field.value?.toString()}>
-  //           <FormControl>
-  //             <SelectTrigger>
-  //               <SelectValue placeholder={`Select ${label.toLowerCase()}`} />
-  //             </SelectTrigger>
-  //           </FormControl>
-  //           <SelectContent>
-  //             {options.map(option => (
-  //               <SelectItem key={option} value={option}>
-  //                 {option}
-  //               </SelectItem>
-  //             ))}
-  //           </SelectContent>
-  //         </Select>
-  //         <FormMessage />
-  //       </FormItem>
-  //     )}
-  //   />
-  // );
-
   const redernComboField = (name: keyof z.infer<typeof formSchema>, label: string) => ( <FormField
       control={form.control}
       name={name}
@@ -244,7 +217,7 @@ export const SiteDetailsForm: React.FC<SiteDetailsFormProps> = ({ site_id, siteD
 
   return (
   <Form {...form}>
-    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3">
+    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3 min-w-0">
       {/* Render each field individually */}
       {formFields.map(({ name, label }) => {
         return name === "state"

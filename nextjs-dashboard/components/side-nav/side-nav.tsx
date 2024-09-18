@@ -13,7 +13,7 @@ import {
 
 import { SiteMenuItem, NavLink } from '@/lib/definitions';
 import { NavLinks } from '@/components/side-nav/nav-links';
-import { useSiteContext } from '@/contexts/SiteContext';
+import { useSiteMenuContext } from '@/contexts/SiteMenuContext';
 
 
 const createMenuItems = (siteMenuItems: SiteMenuItem[]): NavLink[] => {
@@ -27,7 +27,7 @@ const createMenuItems = (siteMenuItems: SiteMenuItem[]): NavLink[] => {
 
 
 const SideNav = () => {
-  const { siteMenuItems } = useSiteContext(); // Use the siteMenuItems from the context
+  const { siteMenuItems } = useSiteMenuContext(); // Use the siteMenuItems from the context
   const [expandedItems, setExpandedItems] = useState<{ [key: string]: boolean }>({});
   const [menuItems, setMenuItems] = useState<NavLink[]>([]);
 
