@@ -1,6 +1,6 @@
-import { SiteMonthlyData } from "@/lib/definitions"
+import { SiteHourlyData } from "@/lib/definitions"
 
-export const siteMonthlyDataSample: SiteMonthlyData[] = [
+export const SiteHourlyDataSample: SiteHourlyData[] = [
     {
         is_day: "Night",
         timestamp: "2023-09-01T00:00:00",

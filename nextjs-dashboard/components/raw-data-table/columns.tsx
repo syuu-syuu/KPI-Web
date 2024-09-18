@@ -5,10 +5,10 @@ import { CellContext } from "@tanstack/react-table"
 import { Checkbox } from "@/components/ui/checkbox"
 import { inverterFormattedNamesSample } from "./data"
 import { DataTableColumnHeader } from "@/components/raw-data-table/column-header"
-import { SiteMonthlyData } from "@/lib/definitions"
+import { SiteHourlyData } from "@/lib/definitions"
 
-export const getColumns = (selectedMode: string): ColumnDef<SiteMonthlyData>[] => {
-  const columns: ColumnDef<SiteMonthlyData>[] = [
+export const getColumns = (selectedMode: string): ColumnDef<SiteHourlyData>[] => {
+  const columns: ColumnDef<SiteHourlyData>[] = [
     {
         accessorKey: "is_day",
         header: ({ column }) => (
@@ -40,12 +40,12 @@ export const getColumns = (selectedMode: string): ColumnDef<SiteMonthlyData>[] =
     // Dynamically create columns for each inverter
     ...inverterFormattedNamesSample.map((inverterName) => ({
         id: inverterName,
-        header: ({ column }: { column: Column<SiteMonthlyData, unknown> }) => (
+        header: ({ column }: { column: Column<SiteHourlyData, unknown> }) => (
           <DataTableColumnHeader column={column} title={inverterName} />
         ),
-        accessorFn: (row: SiteMonthlyData) => 
+        accessorFn: (row: SiteHourlyData) => 
         row.inverters.find((i) => i.inverter_name === inverterName)?.value,
-        cell: (info: CellContext<SiteMonthlyData, unknown>) => info.getValue() || "N/A",
+        cell: (info: CellContext<SiteHourlyData, unknown>) => info.getValue() || "N/A",
     })),
   ];
 

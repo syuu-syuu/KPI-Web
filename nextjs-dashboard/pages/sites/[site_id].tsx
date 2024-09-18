@@ -21,7 +21,7 @@ import { fetchSiteDetails, fetchOriginalRawData} from '@/lib/api'
 import { SiteDetail } from '@/lib/definitions'
 import SiteDetailsForm from '@/components/site-details-form'
 import DataTable from '@/components/raw-data-table/data-table'
-import { siteMonthlyDataSample } from '@/components/raw-data-table/data'
+import { SiteHourlyDataSample } from '@/components/raw-data-table/data'
 import { ExclusiveOutageDataTable } from '@/components/exclusive-outages-table/data-table'
 import { exclusiveOutageDataSample } from '@/components/exclusive-outages-table/data'
 import {columns} from '@/components/exclusive-outages-table/columns'
@@ -92,10 +92,10 @@ const SitePage = () => {
       </div>
 
       
-      <DataTable data={siteMonthlyDataSample} site_id={site_id}/>
-      {/* <div className='mt-6'>
+      <DataTable data={SiteHourlyDataSample} site_id={site_id}/>
+      <div className='mt-6'>
         <ExclusiveOutageDataTable data={exclusiveOutageDataSample} columns={columns}/>
-      </div> */}
+      </div>
     </>
   );
 }
