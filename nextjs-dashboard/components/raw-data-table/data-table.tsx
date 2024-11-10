@@ -59,9 +59,10 @@ const DataTable= ({data, site_id}: DataTableProps<SiteHourlyData>) => {
     async function loadInitialTimeRange() {
     try {
       const availableDateRange = await loadTimeRange(site_id)
-      setDateRange(availableDateRange)   
+      setDateRange(availableDateRange)  
     } catch (error) {
-      console.error("Error fetching available time range:", error);
+      console.error("Error fetching available time range:", error)
+      ;
     }
   }
   loadInitialTimeRange();
@@ -70,6 +71,7 @@ const DataTable= ({data, site_id}: DataTableProps<SiteHourlyData>) => {
   useEffect(() => { 
     async function loadTableData() {
       try {
+        console.log("💙 dateRange in datepicker:", dateRange?.from,dateRange?.to); 
         const fetchedData = await loadOriginalRawData(site_id, dateRange?.from, dateRange?.to)
         setOriginalRawData(fetchedData)
       } catch (error) {
@@ -81,6 +83,7 @@ const DataTable= ({data, site_id}: DataTableProps<SiteHourlyData>) => {
 
 
   const handleDateRangeChange = (newDateRange: DateRange | undefined) => {
+      console.log("newDateRange:", newDateRange);
       setDateRange(newDateRange);
   }
   
@@ -100,7 +103,6 @@ const DataTable= ({data, site_id}: DataTableProps<SiteHourlyData>) => {
       rowSelection,
     },
   })
-
 
   return (
     <div>

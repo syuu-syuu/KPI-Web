@@ -1,42 +1,37 @@
 'use client';
+import * as React from "react";
+import Link from "next/link";
 import { useState, useEffect } from 'react';
-import Link from 'next/link';
 import { useSiteMenuContext } from '@/hooks/use-nav';
 import {
-  Home,
   BookOpen,
-  Tent,
-  Atom,
-  Bird,
   Bot,
-  Code2,
-  Eclipse,
+  Sunrise,
   Frame,
-  History,
   LifeBuoy,
   Map,
   PieChart,
-  Rabbit,
   Send,
   Settings2,
   SquareTerminal,
-  Star,
-  Turtle,
+  Home,
+  Tent,
+  Grid2x2Check,
 } from "lucide-react"
 
-import { NavMain } from "@/components/side-nav/nav-main"
-import { NavSecondary } from "@/components/side-nav/nav-secondary"
-import { NavUser } from "@/components/side-nav/nav-user"
-import { StorageCard } from "@/components/side-nav/storage-card"
-import { TeamSwitcher } from "@/components/side-nav/team-switcher"
+import { NavMain } from "./nav-main"
+import { NavProjects } from "./nav-projects"
+import { NavSecondary } from "./nav-secondary"
+import { NavUser } from "./nav-user"
 import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
   SidebarHeader,
-  SidebarItem,
-  SidebarLabel,
-} from "@/components/side-nav/sidebar"
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+} from "@/components/ui/sidebar"
 
 import { SiteMenuItem } from '@/lib/definitions';
 
@@ -44,38 +39,48 @@ const createSideNavData = (siteMenuItems: SiteMenuItem[]) => {
   return {
     user: {
     name: "Lizzy",
-    email: "lizzy@example.com",
+    email: "lizzy@gmail.com",
     avatar: "@/public/css-logo.png",
   },
   navMain: [
-     {
+    {
       title: "Home",
       url: "/",
       icon: Home,
+      isActive: true,
     },
+    // {
+    //   title: "Documentation",
+    //   url: "#",
+    //   icon: BookOpen,
+    //   items: [
+    //     {
+    //       title: "Introduction",
+    //       url: "#",
+    //     },
+    //     {
+    //       title: "Changelog",
+    //       url: "#",
+    //     },
+    //   ],
+    // },
     {
-      title: "Sites",
+      title: "Site Profiles",
       url: "#",
       icon: Tent,
       items: siteMenuItems.map((site) => ({
         title: site.name,
-        url: `/sites/${site.site_id}`,
+        url: `/sites/profile/${site.site_id}`,
       })),
     },
     {
-      title: "Documentation",
+      title: "Data & Analytics",
       url: "#",
-      icon: BookOpen,
-      items: [
-        {
-          title: "Introduction",
-          url: "#",
-        },
-        {
-          title: "Get Started",
-          url: "#",
-        },
-      ],
+      icon: Grid2x2Check,
+      items: siteMenuItems.map((site) => ({
+        title: site.name,
+        url: `/sites/data/${site.site_id}`,
+      })),
     },
   ],
   navSecondary: [
@@ -90,10 +95,29 @@ const createSideNavData = (siteMenuItems: SiteMenuItem[]) => {
       icon: Send,
     },
   ],
+  // projects: [
+  //   {
+  //     name: "Design Engineering",
+  //     url: "#",
+  //     icon: Frame,
+  //   },
+  //   {
+  //     name: "Sales & Marketing",
+  //     url: "#",
+  //     icon: PieChart,
+  //   },
+  //   {
+  //     name: "Travel",
+  //     url: "#",
+  //     icon: Map,
+  //   },
+  // ],
+
   }
+  
 }
 
-const AppSidebar = () => {
+export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { siteMenuItems } = useSiteMenuContext();
   const [sideNavData, setSideNavData] = useState(() => createSideNavData([]));
 
@@ -102,25 +126,29 @@ const AppSidebar = () => {
         setSideNavData(initialSideNavData);
   }, [siteMenuItems]);
 
-
   return (
-    <Sidebar>
+    <Sidebar {...props}>
       <SidebarHeader>
-          <div
-            className={"flex flex-row items-center leading-none text-zinc-900 space-x-4 mt-5 mb-5"}
-          >
-            <p className="text-[22px]">Carolina Solar Services</p>
-          </div>
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton size="lg" asChild>
+              <Link href="#">
+                <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground mr-2">
+                  <Sunrise className="size-6" />
+                </div>
+                <div className="grid flex-1 text-left text-sm leading-tight mt-1">
+                  <span className="truncate text-sm font-semibold">AutoCAL Dashboard</span>
+                  <span className="truncate text-xs">Carolina Solar Services</span>
+                </div>
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        <SidebarItem>
-          <SidebarLabel>KPI Calculator</SidebarLabel>
-          <NavMain items={sideNavData.navMain} />
-        </SidebarItem>
-        <SidebarItem className="mt-auto">
-          <SidebarLabel>Help</SidebarLabel>
-          <NavSecondary items={sideNavData.navSecondary} />
-        </SidebarItem>
+        <NavMain items={sideNavData.navMain} />
+        {/* <NavProjects projects={sideNavData.projects} /> */}
+        {/* <NavSecondary items={sideNavData.navSecondary} className="mt-auto" /> */}
       </SidebarContent>
       <SidebarFooter>
         <NavUser user={sideNavData.user} />
@@ -128,6 +156,3 @@ const AppSidebar = () => {
     </Sidebar>
   )
 }
-
-
-export {AppSidebar};

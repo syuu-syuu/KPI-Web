@@ -14,6 +14,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
 
 import {
   Command,
@@ -45,6 +56,8 @@ import { fetchSiteDetails, submitSiteDetails } from "@/lib/api";
 import { set } from "date-fns";
 
 import { cn } from "@/lib/utils"
+
+
 // Define the schema for form validation using Zod
 const formSchema = z.object({
   site_name: z.string(),
@@ -57,11 +70,9 @@ const formSchema = z.object({
   contract_end_month: z.preprocess((val) => parseInt(val as string, 10), z.number().int().min(1).max(12)),
 });
 
-type FormSchemaKeys = keyof z.infer<typeof formSchema>;
-
-// Define form fields with layout configuration
+// Define form fields 
 const formFields: { 
-  name: FormSchemaKeys; 
+  name: keyof z.infer<typeof formSchema>; 
   label: string; 
   placeholder: string; 
 }[] = [
@@ -76,9 +87,11 @@ const formFields: {
 ];
 
 
-export const SiteDetailsForm: React.FC<SiteDetailsFormProps> = ({ site_id, siteDetails, onUpdateSiteDetails}) => {
-  // Use react-hook-form to create the form with zod validation
+const SiteDetailsForm: React.FC<SiteDetailsFormProps> = ({ site_id, siteDetails, onUpdateSiteDetails}) => {
+  const [alertOpen, setAlertOpen] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
 
+  // Use react-hook-form to create the form with zod validation
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -92,8 +105,6 @@ export const SiteDetailsForm: React.FC<SiteDetailsFormProps> = ({ site_id, siteD
       contract_end_month: siteDetails?.contract_end_month,
     },
   });
-
-
 
   // UseEffect to update the form default values when siteDetails changes
   useEffect(() => {
@@ -113,9 +124,10 @@ export const SiteDetailsForm: React.FC<SiteDetailsFormProps> = ({ site_id, siteD
 
   // Form submit handler
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    const siteData = {
-      ...values,
+    try{
+       const siteData = {
       site_id: site_id,  // Include site_id in the siteData
+      ...values,
       latitude: values.latitude?.toString(),
       longitude: values.longitude?.toString(),
       contract_start_month: values.contract_start_month?.toString(),
@@ -124,7 +136,7 @@ export const SiteDetailsForm: React.FC<SiteDetailsFormProps> = ({ site_id, siteD
 
     console.log("Form submitted", siteData);
     const response = await submitSiteDetails(site_id, siteData);
-    console.log("Response:", response);
+    console.log("Response received:", response);
 
     const { site_id: responseSiteId, ...rest } = response;
 
@@ -137,6 +149,14 @@ export const SiteDetailsForm: React.FC<SiteDetailsFormProps> = ({ site_id, siteD
     }
 
     onUpdateSiteDetails(updatedSiteDetails);
+    setIsSuccess(true);
+    }catch(error) {
+      console.error("Failed to submit:", error);
+      setIsSuccess(false); // Set failure status
+    } finally {
+      setAlertOpen(true); // Open the alert dialog
+    }
+   
       
   };
 
@@ -145,10 +165,10 @@ export const SiteDetailsForm: React.FC<SiteDetailsFormProps> = ({ site_id, siteD
       control={form.control}
       name={name}
       render={({ field }) => (
-        <FormItem>
+        <FormItem >
           <FormLabel>{label}</FormLabel>
           <FormControl>
-            <Input placeholder={`Enter ${label.toLowerCase()}`} type='text' {...field} />
+            <Input placeholder={`Enter ${label.toLowerCase()}`} type='text' {...field}/>
           </FormControl>
           <FormMessage />
         </FormItem>
@@ -216,22 +236,38 @@ export const SiteDetailsForm: React.FC<SiteDetailsFormProps> = ({ site_id, siteD
 
 
   return (
-  <Form {...form}>
-    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3 min-w-0">
-      {/* Render each field individually */}
-      {formFields.map(({ name, label }) => {
-        return name === "state"
-          // ? renderSelectField(name as keyof z.infer<typeof formSchema>, label, STATE_CHOICES)\
-          ? redernComboField(name as keyof z.infer<typeof formSchema>, label)
-          : renderInputField(name as keyof z.infer<typeof formSchema>, label);
-      })}
+    <>
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3 min-w-0">
+          {/* Render each field individually */}
+          {formFields.map(({ name, label }) => {
+            return name === "state"
+              // ? renderSelectField(name as keyof z.infer<typeof formSchema>, label, STATE_CHOICES)\
+              ? redernComboField(name as keyof z.infer<typeof formSchema>, label)
+              : renderInputField(name as keyof z.infer<typeof formSchema>, label);
+          })}
 
-      {/* Submit Button */}
-      <div className="grid justify-items-end">
-        <Button type="submit">Submit</Button>
-      </div>
-    </form>
-  </Form>
+          {/* Submit Button */}
+          <div className="grid justify-items-end">
+            <Button type="submit">Submit</Button>
+          </div>
+        </form>
+      </Form>
+
+      <AlertDialog open={alertOpen} onOpenChange={setAlertOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{isSuccess ? "Successful" : "Failure"}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {isSuccess ? "The site details have been successfully submitted." : "There was an error submitting the site details. Please try again."}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogAction onClick={() => setAlertOpen(false)}>OK</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
 );
 
 };

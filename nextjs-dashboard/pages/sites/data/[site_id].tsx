@@ -25,6 +25,22 @@ import { SiteHourlyDataSample } from '@/components/raw-data-table/data'
 import { ExclusiveOutageDataTable } from '@/components/exclusive-outages-table/data-table'
 import { exclusiveOutageDataSample } from '@/components/exclusive-outages-table/data'
 import {columns} from '@/components/exclusive-outages-table/columns'
+import { AppSidebar } from "@/components/side-nav/app-sidebar"
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb"
+import { Separator } from "@/components/ui/separator"
+import {
+  SidebarInset,
+  SidebarProvider,
+  SidebarTrigger,
+} from "@/components/ui/sidebar"
+
 
 const SitePage = () => {
   const router = useRouter()
@@ -54,12 +70,70 @@ const SitePage = () => {
 
 
   return (
-    <>
-      <h1 className='mb-8 font-bold text-3xl'> {SiteDetails?.site_name} </h1> 
-      <SiteDetailsForm site_id={site_id} siteDetails={SiteDetails} onUpdateSiteDetails={updateSiteDetails}/>
-     
-      <div className="flex items-center space-x-4 mt-6">
+  
 
+      //  <SidebarInset>
+      //   <header className="flex h-16 shrink-0 items-center gap-2">
+      //     <div className="flex items-center gap-2 px-4">
+      //       <SidebarTrigger className="-ml-1" />
+      //       <Separator orientation="vertical" className="mr-2 h-4" />
+      //       <Breadcrumb>
+      //         <BreadcrumbList>
+      //           <BreadcrumbItem className="hidden md:block">
+      //             <BreadcrumbLink href="#">
+      //               Building Your Application
+      //             </BreadcrumbLink>
+      //           </BreadcrumbItem>
+      //           <BreadcrumbSeparator className="hidden md:block" />
+      //           <BreadcrumbItem>
+      //             <BreadcrumbPage>Data Fetching</BreadcrumbPage>
+      //           </BreadcrumbItem>
+      //         </BreadcrumbList>
+      //       </Breadcrumb>
+      //     </div>
+      //   </header>
+      //   <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
+      //     <div className="grid auto-rows-min gap-4 md:grid-cols-3">
+      //       <div className="aspect-video rounded-xl bg-muted/50" />
+      //       <div className="aspect-video rounded-xl bg-muted/50" />
+      //       <div className="aspect-video rounded-xl bg-muted/50" />
+      //     </div>
+      //     <div className="min-h-[100vh] flex-1 rounded-xl bg-muted/50 md:min-h-min" />
+      //   </div>
+      // </SidebarInset>
+
+    <SidebarInset>
+        <header className="flex h-16 shrink-0 items-center gap-2">
+          <div className="flex items-center gap-2 px-4">
+            <SidebarTrigger className="-ml-1" />
+            <Separator orientation="vertical" className="mr-2 h-4" />
+            <Breadcrumb>
+              <BreadcrumbList>
+                <BreadcrumbItem className="hidden md:block">
+                  <BreadcrumbLink href="#">
+                  Site Data
+                  </BreadcrumbLink>
+                </BreadcrumbItem>
+                <BreadcrumbSeparator className="hidden md:block" />
+                <BreadcrumbItem>
+                  <BreadcrumbPage>{SiteDetails?.site_name}</BreadcrumbPage>
+                </BreadcrumbItem>
+              </BreadcrumbList>
+            </Breadcrumb>
+          </div>
+        </header>
+
+        <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
+          <div className="grid auto-rows-min gap-4 md:grid-cols-3">
+            <div className="aspect-video rounded-xl bg-muted/50" />
+            <div className="aspect-video rounded-xl bg-muted/50" />
+            <div className="aspect-video rounded-xl bg-muted/50" />
+          </div>
+          <div className="min-h-[100vh] flex-1 rounded-xl bg-muted/50 md:min-h-min" />
+        </div>
+     
+     <div className="flex flex-col p-4" >
+       <div className="flex items-center space-x-4 mt-6">
         <div className="flex-1">
           <FilePond
             files={files}
@@ -84,19 +158,19 @@ const SitePage = () => {
               },
               }
             }
-            name="files" /* sets the file input name, it's filepond by default */
+            name="files" 
             labelIdle='Drag & Drop your files or <span class="filepond--label-action">Browse</span>'
             instantUpload={false}
           />
         </div>
-      </div>
+      </div> 
 
-      
       <DataTable data={SiteHourlyDataSample} site_id={site_id}/>
       <div className='mt-6'>
         <ExclusiveOutageDataTable data={exclusiveOutageDataSample} columns={columns}/>
-      </div>
-    </>
+      </div> 
+    </div>
+    </SidebarInset> 
   );
 }
 
