@@ -34,6 +34,7 @@ type SidebarContext = {
   setOpenMobile: (open: boolean) => void
   isMobile: boolean
   toggleSidebar: () => void
+  variant: "sidebar" | "floating" | "inset"
 }
 
 const SidebarContext = React.createContext<SidebarContext | null>(null)
@@ -53,6 +54,7 @@ const SidebarProvider = React.forwardRef<
     defaultOpen?: boolean
     open?: boolean
     onOpenChange?: (open: boolean) => void
+    variant?: "sidebar" | "floating" | "inset"
   }
 >(
   (
@@ -60,6 +62,7 @@ const SidebarProvider = React.forwardRef<
       defaultOpen = true,
       open: openProp,
       onOpenChange: setOpenProp,
+      variant = "sidebar",
       className,
       style,
       children,
@@ -125,14 +128,16 @@ const SidebarProvider = React.forwardRef<
         openMobile,
         setOpenMobile,
         toggleSidebar,
+        variant,
       }),
-      [state, open, setOpen, isMobile, openMobile, setOpenMobile, toggleSidebar]
+      [state, open, setOpen, isMobile, openMobile, setOpenMobile, toggleSidebar, variant]
     )
 
     return (
       <SidebarContext.Provider value={contextValue}>
         <TooltipProvider delayDuration={0}>
           <div
+            data-variant={variant}
             style={
               {
                 "--sidebar-width": SIDEBAR_WIDTH,
@@ -141,7 +146,7 @@ const SidebarProvider = React.forwardRef<
               } as React.CSSProperties
             }
             className={cn(
-              "group/sidebar-wrapper flex min-h-svh w-full has-[[data-variant=inset]]:bg-sidebar",
+              "group/sidebar-wrapper flex min-h-svh w-full bg-sidebar",
               className
             )}
             ref={ref}
