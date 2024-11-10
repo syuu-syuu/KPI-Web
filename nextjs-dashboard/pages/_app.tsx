@@ -17,7 +17,7 @@ const Dashboard = ({ Component, pageProps }: MyAppProps) => {
         <Component {...pageProps}/>
       ) : (
         <SiteProvider>
-          <SidebarProvider>
+          <SidebarProvider variant="inset">
             <AppSidebar variant="inset"/>
               <Component {...pageProps}/>
           </SidebarProvider>

@@ -2,24 +2,10 @@
 
 import React, { useState, useEffect } from 'react'
 import { useRouter } from 'next/router'
-
+import { SitePageLayout } from '@/components/site-page-layout'
 import { fetchSiteDetails } from '@/lib/api'
 import { SiteDetail } from '@/lib/definitions'
 import SiteDetailsForm from '@/components/site-details-form'
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb"
-import { Separator } from "@/components/ui/separator"
-import {
-  SidebarInset,
-  SidebarTrigger,
-} from "@/components/ui/sidebar"
-
 
 const SitePage = () => {
   const router = useRouter()
@@ -49,33 +35,20 @@ const SitePage = () => {
 
 
   return (
-    <SidebarInset>
-        <header className="flex h-16 shrink-0 items-center gap-2">
-          <div className="flex items-center gap-2 px-4">
-            <SidebarTrigger className="-ml-1" />
-            <Separator orientation="vertical" className="mr-2 h-4" />
-            <Breadcrumb>
-              <BreadcrumbList>
-                <BreadcrumbItem className="hidden md:block">
-                  <BreadcrumbLink href="#">
-                  Site Profile
-                  </BreadcrumbLink>
-                </BreadcrumbItem>
-                <BreadcrumbSeparator className="hidden md:block" />
-                <BreadcrumbItem>
-                  <BreadcrumbPage>{SiteDetails?.site_name}</BreadcrumbPage>
-                </BreadcrumbItem>
-              </BreadcrumbList>
-            </Breadcrumb>
-          </div>
-        </header>
-       
-        <div className='p-4'> <SiteDetailsForm site_id={site_id} siteDetails={SiteDetails} onUpdateSiteDetails={updateSiteDetails}/>
-     
-     </div>
-     
-
-    </SidebarInset> 
+     <SitePageLayout
+      siteName={SiteDetails?.site_name}
+      pageTitle="Site Profile"
+    >
+      {/* Your profile page specific content */}
+      <div className="grid gap-4">
+        <SiteDetailsForm 
+          site_id={site_id}
+          siteDetails={SiteDetails} 
+          onUpdateSiteDetails={updateSiteDetails}
+        />
+        {/* Other profile components */}
+      </div>
+    </SitePageLayout>
   );
 }
 
