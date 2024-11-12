@@ -70,14 +70,24 @@ export async function fetchAvailableTimeRange(site_id: string | null) {
 export async function fetchOriginalRawData(site_id: string, start_date: Date | undefined, end_date: Date | undefined): Promise<SiteHourlyData[]> {
     try {
       // Convert dates to ISO string format - a widely accepted standard
-      const startDateStr = start_date?.toISOString();
-      const endDateStr = end_date?.toISOString();
+      // const startDateStr = start_date?.toISOString();
+      // const endDateStr = end_date?.toISOString();
+     
+      const formatDate = (date: Date | undefined) => { 
+        if (!date) return "";
+        const padZero = (num: number) => num.toString().padStart(2, '0');
+        return `${date.getFullYear()}-${padZero(date.getMonth() + 1)}-${padZero(date.getDate())} ${padZero(date.getHours())}:${padZero(date.getMinutes())}:${padZero(date.getSeconds())}`;
+      };
+      const startDateStr = formatDate(start_date);  
+      const endDateStr = formatDate(end_date);
+      console.log("💙 startDateStr, endDateStr:", startDateStr, endDateStr);
       
       const response = await axios.get('/api/site_monthly_data/get_original', {
         params: {
           site_id,
           start_date: startDateStr,
           end_date: endDateStr
+         
         }
       });
 
