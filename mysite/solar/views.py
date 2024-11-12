@@ -88,7 +88,7 @@ class SiteHourlyDataViewSet(viewsets.ViewSet):
         return JsonResponse({"error": "No data found for this site"}, status=404)
 
     @action(detail=False, methods=["get"])
-    def get_original(self, request):
+    def get_hourly(self, request):
         site_id = request.query_params.get("site_id")
         start_date = request.query_params.get("start_date")
         end_date = request.query_params.get("end_date")
@@ -108,21 +108,20 @@ class SiteHourlyDataViewSet(viewsets.ViewSet):
             #     parser.isoparse(end_date).replace(hour=23, minute=59, second=59, microsecond=999999, tzinfo=None)
             # )
             start_date = parser.isoparse(start_date).replace(
-                hour=0, 
-                minute=0, 
+                hour=0,
+                minute=0,
                 second=0,
             )
 
             end_date = parser.isoparse(end_date).replace(
-                hour=23, 
-                minute=59, 
-                second=59, 
+                hour=23,
+                minute=59,
+                second=59,
             )
-                    
+
             # start_date = site_timezone.localize(start_date)
             # end_date = site_timezone.localize(end_date)
             print("💙 start_date, end_date:", start_date, end_date)
-            
 
         except ValueError:
             return Response({"error": "Invalid date format"}, status=400)

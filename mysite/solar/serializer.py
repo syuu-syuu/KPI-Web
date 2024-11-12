@@ -33,11 +33,20 @@ class SiteSerializer(serializers.ModelSerializer):
 class InverterDataSerializer(serializers.ModelSerializer):
     class Meta:
         model = InverterData
-        fields = ["inverter_name", "value"]
+        fields = [
+            "inverter_name",
+            "value",
+            "processed_value",
+            "expected_value",
+            "is_modified",
+        ]
 
     def to_representation(self, instance):
         data = super().to_representation(instance)
         data["value"] = format_string_value(data.get("value"))
+        data["processed_value"] = format_string_value(data.get("processed_value"))
+        data["expected_value"] = format_string_value(data.get("expected_value"))
+        data["is_modified"] = bool(data.get("is_modified", False))
         return data
 
 
@@ -46,7 +55,16 @@ class SiteHourlyDataSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = SiteHourlyData
-        fields = ["timestamp", "POA_Irradiance", "meter_power", "is_day", "inverters"]
+        fields = [
+            "timestamp",
+            "POA_Irradiance",
+            "meter_power",
+            "is_day",
+            "status",
+            "count_missing",
+            "count_should_on_but_not",
+            "inverters",
+        ]
 
     def to_representation(self, instance):
         data = super().to_representation(instance)
@@ -60,5 +78,9 @@ class SiteHourlyDataSerializer(serializers.ModelSerializer):
             data["is_day"] = "Night"
         else:
             data["is_day"] = "Unknown"
+
+        data["count_missing"] = data.get("count_missing", 0)
+        data["count_should_on_but_not"] = data.get("count_should_on_but_not", 0)
+        data["status"] = data.get("status", "D")
 
         return data

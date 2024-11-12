@@ -6,6 +6,8 @@ import { DataTableViewOptions } from "@/components/raw-data-table/view-options"
 
 import { DataTableFacetedFilter } from "@/components/raw-data-table/faceted-filter"
 
+import { CheckCircle2, AlertTriangle, AlertCircle } from "lucide-react"
+
 export const dayNight = [
   {
     value: "Day",
@@ -23,12 +25,19 @@ export const dayNight = [
 
 export const statuses = [
   {
-    value: "Active",
-    label: "Active",
+    value: "A",
+    label: "No issues",
+    // icon: CheckCircle2,
   },
   {
-    value: "Inactive",
-    label: "Inactive",
+    value: "B",
+    label: "Auto-corrected",
+    // icon: AlertTriangle,
+  },
+  {
+    value: "C",
+    label: "Needs investigation",
+    // icon: AlertCircle,
   },
 ]
 

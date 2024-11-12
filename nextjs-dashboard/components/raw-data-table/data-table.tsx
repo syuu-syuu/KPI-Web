@@ -29,10 +29,10 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { DataTableToolbar } from './toolbar';
 import { DataTablePagination } from './pagination';
-import { fetchOriginalRawData } from '@/lib/api';
+import { fetchHourlyData} from '@/lib/api';
 import { DateRange } from "react-day-picker"
 import { SiteHourlyData } from '@/lib/definitions'
-import { loadTimeRange, loadOriginalRawData} from '@/lib/data';
+import { loadTimeRange, loadHourlyData} from '@/lib/data';
 
 interface DataTableProps<TData> {
   data: TData[]
@@ -72,7 +72,7 @@ const DataTable= ({data, site_id}: DataTableProps<SiteHourlyData>) => {
     async function loadTableData() {
       try {
         console.log("💙 dateRange in datepicker:", dateRange?.from,dateRange?.to); 
-        const fetchedData = await loadOriginalRawData(site_id, dateRange?.from, dateRange?.to)
+        const fetchedData = await loadHourlyData(site_id, dateRange?.from, dateRange?.to)
         setOriginalRawData(fetchedData)
       } catch (error) {
         console.error("Error fetching original raw data:", error);

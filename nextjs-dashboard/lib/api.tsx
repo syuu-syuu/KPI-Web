@@ -67,7 +67,7 @@ export async function fetchAvailableTimeRange(site_id: string | null) {
   }
 }
 
-export async function fetchOriginalRawData(site_id: string, start_date: Date | undefined, end_date: Date | undefined): Promise<SiteHourlyData[]> {
+export async function fetchHourlyData(site_id: string, start_date: Date | undefined, end_date: Date | undefined): Promise<SiteHourlyData[]> {
     try {
       // Convert dates to ISO string format - a widely accepted standard
       // const startDateStr = start_date?.toISOString();
@@ -82,19 +82,18 @@ export async function fetchOriginalRawData(site_id: string, start_date: Date | u
       const endDateStr = formatDate(end_date);
       console.log("💙 startDateStr, endDateStr:", startDateStr, endDateStr);
       
-      const response = await axios.get('/api/site_monthly_data/get_original', {
+      const response = await axios.get('/api/site_monthly_data/get_hourly', {
         params: {
           site_id,
           start_date: startDateStr,
           end_date: endDateStr
-         
         }
       });
 
-      console.log("✅ Successfully fetched original raw data:", response.data);
+      console.log("✅ Successfully fetched hourly data:", response.data);
       return response.data
     } catch (error) {
-      console.error("❌ Error fetching original raw data:", error);
+      console.error("❌ Error fetching hourly data:", error);
       throw error;
     }
     
