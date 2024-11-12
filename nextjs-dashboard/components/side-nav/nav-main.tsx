@@ -1,7 +1,9 @@
 "use client"
 import Link from "next/link"
 import { ChevronRight, type LucideIcon } from "lucide-react"
-
+import { useState, useEffect } from "react"
+import { usePathname } from "next/navigation"
+import { cn } from "@/lib/utils"
 import {
   Collapsible,
   CollapsibleContent,
@@ -33,6 +35,17 @@ export function NavMain({
     }[]
   }[]
 }) {
+
+  const pathname = usePathname()
+  const [selectedPath, setSelectedPath] = useState<string>(pathname?? '/')
+
+  useEffect(() => {
+    setSelectedPath(pathname?? '/')
+  }, [pathname])
+
+
+
+
   return (
     <SidebarGroup>
       <SidebarGroupLabel>Platform</SidebarGroupLabel>
@@ -58,7 +71,13 @@ export function NavMain({
                     <SidebarMenuSub>
                       {item.items?.map((subItem) => (
                         <SidebarMenuSubItem key={subItem.title}>
-                          <SidebarMenuSubButton asChild>
+                          <SidebarMenuSubButton 
+                            asChild
+                            data-selected={subItem.url === selectedPath}
+                            className={cn(
+                              "data-[selected=true]:font-bold"
+                            )}>
+                          
                             <Link href={subItem.url}>
                               <span>{subItem.title}</span>
                             </Link>

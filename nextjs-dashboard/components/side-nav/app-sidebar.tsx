@@ -70,7 +70,7 @@ const createSideNavData = (siteMenuItems: SiteMenuItem[]) => {
       icon: Tent,
       items: siteMenuItems.map((site) => ({
         title: site.name,
-        url: `/sites/profile/${site.site_id}`,
+        url: `/sites/profile/${site.site_id}`
       })),
     },
     {
@@ -79,7 +79,7 @@ const createSideNavData = (siteMenuItems: SiteMenuItem[]) => {
       icon: Grid2x2Check,
       items: siteMenuItems.map((site) => ({
         title: site.name,
-        url: `/sites/data/${site.site_id}`,
+        url: `/sites/data/${site.site_id}`
       })),
     },
   ],
