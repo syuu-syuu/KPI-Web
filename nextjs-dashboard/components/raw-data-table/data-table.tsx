@@ -165,12 +165,15 @@ const DataTable= ({data, site_id}: DataTableProps<SiteHourlyData>) => {
       </div>
       
 
-      {(selectedMode === 'auto-processed'||"expected") && (
-        <div className="flex space-x-2 mt-2 justify-end">
-          <Button>Add To Ex                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 clusive Outages</Button>
-          <Button>Remove From Exclusive Outages</Button>
-        </div>
-      )}
+      <div className="flex space-x-2 mt-2 justify-end">
+        <Button disabled={selectedMode === 'original'}>
+          Add To Exclusive Outages
+        </Button>
+        <Button disabled={selectedMode === 'original'}>
+          Remove From Exclusive Outages
+        </Button>
+      </div>
+
     </div>
   )
 
