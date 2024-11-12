@@ -8,6 +8,7 @@ from .services.file_processor.process_files import read_uploaded_files
 from .serializer import SiteSerializer, SiteHourlyDataSerializer
 from .models import Site, SiteHourlyData, InverterData
 from dateutil import parser
+import pytz
 from .services.data_operations.process_data import process_site_hourly_data
 from .services.data_operations.calculate_expected import calculate_expected
 from .services.data_operations.calculate_availability import (
@@ -17,6 +18,8 @@ from .services.data_operations.calculate_availability import (
     calculate_cumulative_availability_for_new_month,
 )
 from django.shortcuts import get_object_or_404
+
+from .services.file_processor.get_geocoding import getGeocoding, getTimeZone
 
 
 class SiteViewSet(viewsets.ModelViewSet):
@@ -89,16 +92,38 @@ class SiteHourlyDataViewSet(viewsets.ViewSet):
         site_id = request.query_params.get("site_id")
         start_date = request.query_params.get("start_date")
         end_date = request.query_params.get("end_date")
+        print("Getting dates:", start_date, end_date)
 
         if not site_id or not start_date or not end_date:
             return Response({"error": "Missing required parameters"}, status=400)
 
         try:
-            start_date = parser.isoparse(start_date)
-            end_date = parser.isoparse(end_date).replace(
-                hour=23, minute=59, second=59, microsecond=999999
+            # Get site's timezone
+            lat, lng = getGeocoding(site_id)
+            site_timezone = pytz.timezone(getTimeZone(lat, lng))
+
+            # Parse dates from ISO format, remove UTC timezone, and localize to site timezone
+            # start_date = site_timezone.localize(parser.isoparse(start_date).replace(tzinfo=None))
+            # end_date = site_timezone.localize(
+            #     parser.isoparse(end_date).replace(hour=23, minute=59, second=59, microsecond=999999, tzinfo=None)
+            # )
+            start_date = parser.isoparse(start_date).replace(
+                hour=0, 
+                minute=0, 
+                second=0,
             )
-            print(start_date, end_date)
+
+            end_date = parser.isoparse(end_date).replace(
+                hour=23, 
+                minute=59, 
+                second=59, 
+            )
+                    
+            # start_date = site_timezone.localize(start_date)
+            # end_date = site_timezone.localize(end_date)
+            print("💙 start_date, end_date:", start_date, end_date)
+            
+
         except ValueError:
             return Response({"error": "Invalid date format"}, status=400)
 
