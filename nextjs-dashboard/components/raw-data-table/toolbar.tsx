@@ -5,8 +5,7 @@ import { Button } from "@/components/ui/button"
 import { DataTableViewOptions } from "@/components/raw-data-table/view-options"
 
 import { DataTableFacetedFilter } from "@/components/raw-data-table/faceted-filter"
-
-import { CheckCircle2, AlertTriangle, AlertCircle } from "lucide-react"
+import { STATUS_OPTIONS } from '@/lib/definitions';
 
 export const dayNight = [
   {
@@ -23,32 +22,39 @@ export const dayNight = [
   },
 ]
 
-export const statuses = [
-  {
-    value: "A",
-    label: "No issues",
-    // icon: CheckCircle2,
-  },
-  {
-    value: "B",
-    label: "Auto-corrected",
-    // icon: AlertTriangle,
-  },
-  {
-    value: "C",
-    label: "Needs investigation",
-    // icon: AlertCircle,
-  },
-]
+// export const statuses = [
+//   {
+//     value: "A",
+//     label: "No issues",
+//     // icon: CheckCircle2,
+//   },
+//   {
+//     value: "B",
+//     label: "Auto-corrected",
+//     // icon: AlertTriangle,
+//   },
+//   {
+//     value: "C",
+//     label: "Needs investigation",
+//     // icon: AlertCircle,
+//   },
+
+//    {
+//     value: "D",
+//     label: "Unprocessed",
+//   }
+// ]
 
 interface DataTableToolbarProps<TData> {
-  table: Table<TData>
+  table: Table<TData>;
+  selectedMode: string; 
 }
 
 export function DataTableToolbar<TData>({
   table,
+  selectedMode,
 }: DataTableToolbarProps<TData>) {
-  const isFiltered = table.getState().columnFilters.length > 0
+  const isFiltered = table.getState().columnFilters.length > 0;
 
   return (
     <div className="flex items-center justify-between mb-2">
@@ -60,11 +66,11 @@ export function DataTableToolbar<TData>({
             options={dayNight}
           />
         )}
-        {table.getColumn("status") && (
+        {selectedMode !== 'original' && table.getColumn('status') && (
           <DataTableFacetedFilter
-            column={table.getColumn("status")}
+            column={table.getColumn('status')}
             title="Status"
-            options={statuses}
+            options={STATUS_OPTIONS}
           />
         )}
         {isFiltered && (

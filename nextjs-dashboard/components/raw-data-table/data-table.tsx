@@ -112,7 +112,7 @@ const DataTable= ({data, site_id}: DataTableProps<SiteHourlyData>) => {
       </div>             
 
       <div className='mt-2'>
-        <DataTableToolbar table={table}/>
+        <DataTableToolbar table={table} selectedMode={selectedMode}/>
       </div>
 
       <div className="rounded-md border">
