@@ -23,6 +23,10 @@ def custom_to_datetime(df):
     for fmt in formats:
         try:
             df["Timestamp"] = pd.to_datetime(df["Timestamp"], format=fmt)
+            # df["Timestamp"] = df["Timestamp"].apply(
+            #     lambda x: timezone.make_aware(x, timezone=pytz.UTC)
+            # )
+            # print("Converted to UTC timezone:", df["Timestamp"].head())
             return df
 
         except ValueError:  # if the format doesn't match, continue to the next format

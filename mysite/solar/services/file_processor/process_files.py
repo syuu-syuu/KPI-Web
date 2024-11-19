@@ -6,10 +6,14 @@ from solar.services.data_operations.save_to_db import save_processed_data_to_db
 
 
 def process_files(uploaded_files, site_id):
-    df = read_uploaded_files(uploaded_files)
-    df = rename(df, site_id)
+    dfs = read_uploaded_files(uploaded_files)
+    for df in dfs:
+        df = rename(df, site_id)
+        df = normalize(df, site_id)
+        df = check_missing(df)
+        save_processed_data_to_db(df, site_id)
 
-    return df
+    return dfs
 
 
 def test_process_files(file_path, site_id):

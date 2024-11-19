@@ -38,8 +38,8 @@ def process_site_hourly_data(site_id):
         queryset = (
             SiteHourlyData.objects.filter(
                 site_id=site_id,
-                # is_day=True,
-                # POA_Irradiance__gt=POA_IRRADIANCE_THRESHOLD,
+                is_day=True,
+                POA_Irradiance__gt=POA_IRRADIANCE_THRESHOLD,
             )
             .select_for_update()
             .prefetch_related("inverters")

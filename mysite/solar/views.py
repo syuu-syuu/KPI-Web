@@ -9,6 +9,7 @@ from .serializer import SiteSerializer, SiteHourlyDataSerializer
 from .models import Site, SiteHourlyData, InverterData
 from dateutil import parser
 import pytz
+from .services.file_processor.process_files import process_files
 from .services.data_operations.process_data import process_site_hourly_data
 from .services.data_operations.calculate_expected import calculate_expected
 from .services.data_operations.calculate_availability import (
@@ -44,6 +45,8 @@ class UploadFileView(APIView):
         try:
             site_id = request.data.get("site_id")
             request.session["site_id"] = site_id
+
+            df = process_files(uploaded_files, site_id)
 
             return Response(
                 {"status": "success", "message": "File uploaded and processed"},
@@ -129,6 +132,7 @@ class SiteHourlyDataViewSet(viewsets.ViewSet):
         queryset = (
             SiteHourlyData.objects.all()
             .filter(site_id=site_id, timestamp__range=(start_date, end_date))
+            .order_by("timestamp")
             .prefetch_related("inverters")
         )
 

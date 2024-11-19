@@ -6,9 +6,9 @@ from .views import SiteViewSet, UploadFileView, SiteHourlyDataViewSet, KPIViewSe
 router = DefaultRouter()
 router.register(r"sites", SiteViewSet, basename="site")
 router.register(
-    r"site_monthly_data",
+    r"site_hourly_data",
     SiteHourlyDataViewSet,
-    basename="site_monthly_data",
+    basename="site_hourly_data",
 )
 router.register(
     r"kpi",
