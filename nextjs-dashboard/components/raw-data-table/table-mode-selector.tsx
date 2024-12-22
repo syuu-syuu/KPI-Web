@@ -1,6 +1,5 @@
 import { Label } from "@/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import { useState } from 'react';
 
 
 interface TableModeSelectorProps {
@@ -10,7 +9,7 @@ interface TableModeSelectorProps {
 
 const TableModeSelector = ({ selectedMode, setSelectedMode } : TableModeSelectorProps) => {
   return (
-    <RadioGroup value={selectedMode} onValueChange={setSelectedMode} className="flex">
+    <RadioGroup value={selectedMode} onValueChange={setSelectedMode} className="flex gap-6">
       <div className="flex items-center space-x-2">
         <RadioGroupItem value="original" id="original" />
         <Label htmlFor="original">Original</Label>

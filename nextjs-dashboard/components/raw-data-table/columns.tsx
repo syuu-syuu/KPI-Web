@@ -3,10 +3,18 @@
 import { ColumnDef, Column } from '@tanstack/react-table';
 import { CellContext } from '@tanstack/react-table';
 import { Checkbox } from '@/components/ui/checkbox';
+
 import { inverterFormattedNamesSample } from './data';
 import { DataTableColumnHeader } from '@/components/raw-data-table/column-header';
 import { SiteHourlyData, DataStatus} from '@/lib/definitions';
 import { StatusIcon } from '@/components/status-icon';
+import { FilterFnOption } from '@tanstack/react-table';
+
+declare module '@tanstack/table-core' {
+  interface FilterFns {
+    customOr: FilterFnOption<any>
+  }
+}
 
 export const getColumns = (
   selectedMode: string,
@@ -30,6 +38,7 @@ export const getColumns = (
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title="Day/Night" />
       ),
+      filterFn: 'customOr',
     },
     {
       accessorKey: 'timestamp',
@@ -109,6 +118,7 @@ export const getColumns = (
         <DataTableColumnHeader column={column} title="Status" />
       ),
       cell: (info) => <StatusIcon status={info.getValue() as DataStatus} showTooltip={true} />,
+      filterFn: 'customOr',
     });
   }
 

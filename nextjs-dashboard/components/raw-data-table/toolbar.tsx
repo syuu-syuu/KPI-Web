@@ -1,90 +1,29 @@
-import { Cross2Icon } from "@radix-ui/react-icons"
-import { Table } from "@tanstack/react-table"
+import TableModeSelector from './table-mode-selector';
+import DatePickerWithRange  from '@/components/date-picker'
+import { DataTableFilters } from './filters';
+import { Table } from '@tanstack/react-table';
+import { SiteHourlyData } from '@/lib/definitions';
+import { DateRange } from 'react-day-picker';
 
-import { Button } from "@/components/ui/button"
-import { DataTableViewOptions } from "@/components/raw-data-table/view-options"
-
-import { DataTableFacetedFilter } from "@/components/raw-data-table/faceted-filter"
-import { STATUS_OPTIONS } from '@/lib/definitions';
-
-export const dayNight = [
-  {
-    value: "Day",
-    label: "Day",
-  },
-  {
-    value: "Night",
-    label: "Night",
-  },
-  {
-    value: "Unknown",
-    label: "Unknown",
-  },
-]
-
-// export const statuses = [
-//   {
-//     value: "A",
-//     label: "No issues",
-//     // icon: CheckCircle2,
-//   },
-//   {
-//     value: "B",
-//     label: "Auto-corrected",
-//     // icon: AlertTriangle,
-//   },
-//   {
-//     value: "C",
-//     label: "Needs investigation",
-//     // icon: AlertCircle,
-//   },
-
-//    {
-//     value: "D",
-//     label: "Unprocessed",
-//   }
-// ]
-
-interface DataTableToolbarProps<TData> {
-  table: Table<TData>;
-  selectedMode: string; 
+interface DataTableToolbarProps {
+  site_id: string;
+  handleDateRangeChange: (dateRange: DateRange) => void;
+  selectedMode: string;
+  setSelectedMode: (mode: string) => void;
+  table: Table<SiteHourlyData>;
 }
 
-export function DataTableToolbar<TData>({
-  table,
-  selectedMode,
-}: DataTableToolbarProps<TData>) {
-  const isFiltered = table.getState().columnFilters.length > 0;
-
+export const DataTableToolbar = ({site_id, handleDateRangeChange, selectedMode, setSelectedMode, table}: DataTableToolbarProps) => {
   return (
-    <div className="flex items-center justify-between mb-2">
-      <div className="flex flex-1 items-center space-x-2">
-        {table.getColumn("is_day") && (
-          <DataTableFacetedFilter
-            column={table.getColumn("is_day")}
-            title="Day/Night"
-            options={dayNight}
-          />
-        )}
-        {selectedMode !== 'original' && table.getColumn('status') && (
-          <DataTableFacetedFilter
-            column={table.getColumn('status')}
-            title="Status"
-            options={STATUS_OPTIONS}
-          />
-        )}
-        {isFiltered && (
-          <Button
-            variant="ghost"
-            onClick={() => table.resetColumnFilters()}
-            className="h-8 px-2 lg:px-3"
-          >
-            Reset
-            <Cross2Icon className="ml-2 h-4 w-4" />
-          </Button>
-        )}
+    <>
+      <div className="flex mt-6 mb-6 space-x-6 justify-between" > 
+        <DatePickerWithRange site_id = {site_id} onDateRangeChange={handleDateRangeChange}/>
+        <TableModeSelector selectedMode={selectedMode} setSelectedMode={setSelectedMode} />
+      </div>             
+
+      <div className='mt-2 mb-6'>
+        <DataTableFilters table={table} selectedMode={selectedMode}/>
       </div>
-      <DataTableViewOptions table={table} />
-    </div>
+    </>
   )
 }

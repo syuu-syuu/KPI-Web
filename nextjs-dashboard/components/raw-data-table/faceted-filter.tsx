@@ -1,4 +1,3 @@
-import * as React from "react"
 import { CheckIcon, PlusCircledIcon } from "@radix-ui/react-icons"
 import { Column } from "@tanstack/react-table"
 
@@ -39,6 +38,17 @@ export function DataTableFacetedFilter<TData, TValue>({
   const facets = column?.getFacetedUniqueValues()
   const selectedValues = new Set(column?.getFilterValue() as string[])
 
+  const handleSelect = (value: string) => {
+    if (selectedValues.has(value)) {
+      selectedValues.delete(value)
+    }
+    else {
+      selectedValues.add(value)
+    }
+    const filterValues = Array.from(selectedValues)
+    column?.setFilterValue(filterValues.length ? filterValues : undefined)
+  }
+  
   return (
     <Popover>
       <PopoverTrigger asChild>
@@ -91,17 +101,7 @@ export function DataTableFacetedFilter<TData, TValue>({
                 return (
                   <CommandItem
                     key={option.value}
-                    onSelect={() => {
-                      if (isSelected) {
-                        selectedValues.delete(option.value)
-                      } else {
-                        selectedValues.add(option.value)
-                      }
-                      const filterValues = Array.from(selectedValues)
-                      column?.setFilterValue(
-                        filterValues.length ? filterValues : undefined
-                      )
-                    }}
+                    onSelect={() => handleSelect(option.value)}
                   >
                     <div
                       className={cn(

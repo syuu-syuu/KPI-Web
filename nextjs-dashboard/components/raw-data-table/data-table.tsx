@@ -1,5 +1,5 @@
 "use client"
-import { useState, useEffect, use } from 'react'
+import { useState, useEffect } from 'react'
 import {
   ColumnFiltersState,
   SortingState,
@@ -10,6 +10,7 @@ import {
   useReactTable,
   getSortedRowModel,
   RowSelectionState,
+  FilterFn,
 } from "@tanstack/react-table"
 
 import {
@@ -23,13 +24,10 @@ import {
 
 import TableModeSelector from './table-mode-selector';
 import DatePickerWithRange  from '@/components/date-picker'
-import { get } from 'http';
 import { getColumns} from './columns';
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { DataTableToolbar } from './toolbar';
-import { DataTablePagination } from './pagination';
-import { fetchHourlyData} from '@/lib/api';
+import { DataTableFilters } from './filters';
+import { DataTablePagination } from './pagination';;
 import { DateRange } from "react-day-picker"
 import { SiteHourlyData } from '@/lib/definitions'
 import { loadTimeRange, loadHourlyData} from '@/lib/data';
@@ -37,6 +35,12 @@ import { loadTimeRange, loadHourlyData} from '@/lib/data';
 interface DataTableProps<TData> {
   data: TData[]
   site_id: string
+}
+
+const customFilterFn: FilterFn<any> = (row, columnId, filterValues: string[]) => {
+  const value = row.getValue(columnId)
+  // Return true if the value matches ANY of the filter values
+  return typeof value === 'string' && filterValues.includes(value)
 }
 
 const DataTable= ({data, site_id}: DataTableProps<SiteHourlyData>) => {  
@@ -48,7 +52,6 @@ const DataTable= ({data, site_id}: DataTableProps<SiteHourlyData>) => {
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>(
     []
   )
-
 
   const [dateRange, setDateRange] = useState<DateRange>()
   const [originalRawData, setOriginalRawData] = useState<SiteHourlyData[]>(data)
@@ -97,6 +100,9 @@ const DataTable= ({data, site_id}: DataTableProps<SiteHourlyData>) => {
     onColumnFiltersChange: setColumnFilters,
     getFilteredRowModel: getFilteredRowModel(),
     onRowSelectionChange: setRowSelection,
+    filterFns: {
+      customOr: customFilterFn,
+    },
     state: {
       sorting,
       columnFilters,
@@ -106,13 +112,13 @@ const DataTable= ({data, site_id}: DataTableProps<SiteHourlyData>) => {
 
   return (
     <div>
-      <div className="flex mt-6 mb-6 space-x-6" > 
+      <div className="flex mt-6 mb-6 space-x-6 justify-between" > 
         <DatePickerWithRange site_id = {site_id} onDateRangeChange={handleDateRangeChange}/>
         <TableModeSelector selectedMode={selectedMode} setSelectedMode={setSelectedMode} />
       </div>             
 
-      <div className='mt-2'>
-        <DataTableToolbar table={table} selectedMode={selectedMode}/>
+      <div className='mt-2 mb-6'>
+        <DataTableFilters table={table} selectedMode={selectedMode}/>
       </div>
 
       <div className="rounded-md border">
