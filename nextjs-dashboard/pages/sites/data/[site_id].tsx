@@ -18,11 +18,12 @@ const SitePage = () => {
   const router = useRouter()
   const site_id = router.query.site_id as string;
   const [SiteDetails, setSiteDetails] = useState<SiteDetail>();
-  console.log("router.isReady:", router.isReady);
-  console.log(site_id); 
+ 
 
   useEffect(() => {
     if (router.isReady) {
+      // console.log("router.isReady:", router.isReady);
+      // console.log(site_id); 
       const loadSiteDetails = async () => {
         const data = await fetchSiteDetails(site_id); 
         console.log('Site Details:', data);
@@ -39,12 +40,17 @@ const SitePage = () => {
     <SitePageLayout
       siteName={SiteDetails?.site_name}
       pageTitle="Site Data"
-    >
-        <div className="flex flex-col gap-6 p-4" >
+    > 
+      {site_id && (
+        <div className="flex flex-col gap-6 p-4">
           <DataProcessingPanel site_id={site_id} />
-          <DataTable data={SiteHourlyDataSample} site_id={site_id}/>
-          <ExclusiveOutageDataTable data={exclusiveOutageDataSample} columns={columns}/>
+          <DataTable data={SiteHourlyDataSample} site_id={site_id} />
+          <ExclusiveOutageDataTable 
+            data={exclusiveOutageDataSample} 
+            columns={columns}
+          />
         </div>
+      )}
     </SitePageLayout>
   );
 }
