@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import { processOriginalData, calculateAvailabilities } from '@/lib/api';
+import { processFiles, processOriginalData, calculateAvailabilities } from '@/lib/api';
 import { CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { FileUpload } from './file-upload';
@@ -26,6 +26,13 @@ export function DataProcessingPanel({ site_id }: DataProcessingPanelProps) {
     'idle' | 'uploading' | 'completed' | 'error'
   >('idle');
   const [steps, setSteps] = useState<ProcessingStep[]>([
+    {
+      id: 'read',
+      title: 'Read and Load Data',
+      description: 'Read the uploaded data file and load it into the database',
+      action: processFiles,
+      status: 'idle',
+    },
     {
       id: 'process',
       title: 'Process Raw Data',

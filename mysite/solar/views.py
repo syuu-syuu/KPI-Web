@@ -21,7 +21,9 @@ from .services.data_operations.calculate_availability import (
 from django.shortcuts import get_object_or_404
 
 from .services.file_processor.get_geocoding import getGeocoding, getTimeZone
-
+from django.core.files.storage import default_storage
+from django.conf import settings
+import os
 
 class SiteViewSet(viewsets.ModelViewSet):
     queryset = Site.objects.all()
@@ -30,11 +32,9 @@ class SiteViewSet(viewsets.ModelViewSet):
 
 class UploadFileView(APIView):
     def post(self, request):
-        print("Received a request!", request)
-        print("Request site:", request.data.get("site_id"))
-        print("Request files:", request.FILES.getlist("files"))
-
+        print("Request for uploading file(s) for site:", request.data.get("site_id"), request.FILES.getlist("files"))
         uploaded_files = request.FILES.getlist("files")
+        site_id = request.data.get("site_id")
 
         if not uploaded_files:
             return Response(
@@ -43,24 +43,28 @@ class UploadFileView(APIView):
             )
 
         try:
-            site_id = request.data.get("site_id")
-            request.session["site_id"] = site_id
+            # Create a temporary directory for the current site if it doesn't exist
+            temp_dir = os.path.join(settings.TEMP_DIR, f'temp_{site_id}')
+            os.makedirs(temp_dir, exist_ok=True)
 
-            df = process_files(uploaded_files, site_id)
 
-            return Response(
-                {"status": "success", "message": "File uploaded and processed"},
-                status=status.HTTP_200_OK,
-            )
+            # Save the uploaded files to the temporary directory
+            saved_files = []
+            for file in uploaded_files:
+                file_path = os.path.join(temp_dir, file.name)
+                with default_storage.open(file_path, 'wb') as destination:
+                    for chunk in file.chunks():
+                        destination.write(chunk)
+                saved_files.append(file_path)
 
-            # dfs = read_uploaded_files(uploaded_files)
-            # if not dfs:
-            #     print("No DataFrames were created.")
-            # else:
-            #     print(f"Number of DataFrames: {len(dfs)}")
-            #     print(f"Type of first DataFrame: {type(dfs[0])}")
+            request.session['pending_files'] = saved_files  
+            request.session['site_id'] = site_id    
 
-            # return render_dataframe(request, dfs=dfs)
+            return Response({
+                "status": "success",
+                "message": "Files uploaded successfully",
+                "files": [os.path.basename(f) for f in saved_files]
+            }, status=status.HTTP_200_OK)
 
         except ValueError as e:
             print(f"Error occurred: {str(e)}")
@@ -69,7 +73,41 @@ class UploadFileView(APIView):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
+class ProcessFileView(APIView):
+    def post(self, request):
+        site_id = request.session.get('site_id')
+        saved_files = request.session.get('pending_files')
 
+        print("Processing files for site:", site_id)
+        print("Filepaths:", saved_files)
+
+        if not saved_files:
+            return Response({
+                "status": "error",
+                "message": "No pending files to process"
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            process_files(saved_files, site_id)
+
+            # Clean up temporary files
+            for file in saved_files:
+                os.remove(file)
+
+            temp_dir = os.path.join(settings.TEMP_DIR, f'temp_{site_id}')
+            os.rmdir(temp_dir)
+
+            # Clean up session data
+            request.session.pop('pending_files', None)
+            request.session.pop('site_id', None)
+            
+            return Response({"status": "success", "message": f"Successfully processed {len(saved_files)} files for site {site_id}"}, status=status.HTTP_200_OK)
+           
+        except Exception as e:
+            return Response({"error": str(e), "message": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+     
+           
+    
 class SiteHourlyDataViewSet(viewsets.ViewSet):
     queryset = SiteHourlyData.objects.all()
 

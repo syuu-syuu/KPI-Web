@@ -5,8 +5,8 @@ from .check_missing import check_missing
 from solar.services.data_operations.save_to_db import save_processed_data_to_db
 
 
-def process_files(uploaded_files, site_id):
-    dfs = read_uploaded_files(uploaded_files)
+def process_files(saved_files, site_id):
+    dfs = read_uploaded_files(saved_files)
     for df in dfs:
         df = rename(df, site_id)
         df = normalize(df, site_id)

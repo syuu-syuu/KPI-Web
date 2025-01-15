@@ -17,9 +17,12 @@ Including another URLconf
 
 from django.contrib import admin
 from django.urls import path, include
+from django.conf import settings
+from django.conf.urls.static import static
 
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("api/", include("solar.urls")),
     path("data/", include("data_render.urls")),
-]
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT) # Provide media files for development, only in debug mode; when in production, use nginx to serve static files
+# Note: when visit /media/temp/example.csv, django will look for the file in settings.MEDIA_ROOT/temp/example.csv; if file found, serve the file

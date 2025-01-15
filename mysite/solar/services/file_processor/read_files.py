@@ -8,15 +8,17 @@ def detect_separator(line):
     return ";"
 
 
-def read_file(uploaded_file):
-    file_extension = os.path.splitext(uploaded_file.name)[-1]
+def read_file(saved_file):
+    print("Reading file:", saved_file.name)
+    file_extension = os.path.splitext(saved_file.name)[-1]
     if file_extension.lower() != ".csv":
         raise ValueError(f"Unsupported file format: {file_extension}")
 
+    
     # Read the first 10 lines to detect the header and separator
     lines = []
     for _ in range(10):
-        line = uploaded_file.readline().decode(
+        line = saved_file.readline().decode(
             "utf-8"
         )  # Ensure decoding from bytes to string
         if not line:
@@ -34,10 +36,10 @@ def read_file(uploaded_file):
     separator = detect_separator(lines[header_index])
 
     # Rewind the file pointer back to the beginning
-    uploaded_file.seek(0)
+    saved_file.seek(0)
 
     # Read the data into a DataFrame, skipping rows until the header
-    df = pd.read_csv(uploaded_file, skiprows=header_index, header=0, sep=separator)
+    df = pd.read_csv(saved_file, skiprows=header_index, header=0, sep=separator)
 
     # Check and drop the first row if it's an extra unit row
     if pd.isna(df.iloc[0, 0]):
@@ -92,12 +94,12 @@ def test_read_file(file_path):
     return df
 
 
-def read_uploaded_files(uploaded_files):
+def read_uploaded_files(saved_files):
     dfs = []
-    for uploaded_file in uploaded_files:
-        df = read_file(uploaded_file)
+    for saved_file in saved_files:
+        df = read_file(saved_file)
         print(f"Type of df: {type(df)}")
-        print(f"Successfully read file: {uploaded_file.name}")
+        print(f"Successfully read file: {saved_file.name}")
         print(df.head())
         dfs.append(df)
 

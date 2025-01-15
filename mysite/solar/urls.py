@@ -1,6 +1,6 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import SiteViewSet, UploadFileView, SiteHourlyDataViewSet, KPIViewSet
+from .views import SiteViewSet, UploadFileView, SiteHourlyDataViewSet, KPIViewSet, ProcessFileView
 
 # router = DefaultRouter(trailing_slash=False)
 router = DefaultRouter()
@@ -18,5 +18,6 @@ router.register(
 
 urlpatterns = [
     path("upload_file/", UploadFileView.as_view()),
+    path("process_file/", ProcessFileView.as_view()),
     path("", include(router.urls)),
 ]

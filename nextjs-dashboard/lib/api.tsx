@@ -113,6 +113,19 @@ export async function fetchHourlyData(
   }
 }
 
+export const processFiles = async (site_id: string) => {
+  try {
+    const response = await axios.post('/api/process_file/', {
+      site_id: site_id,
+    });
+    console.log('✅ Successfully processed files');
+    return response.data;
+  } catch (error) {
+    console.error('❌ Error processing files:', error);
+    throw error;
+  }
+};
+
 export const processOriginalData = async (site_id: string) => {
   try {
     console.log('Processing original data for site_id:', site_id);
